@@ -22,15 +22,16 @@ ECHO    := echo -e
 # **************************************************************************** #
 
 NAME := main.py
-PYTHON := uv run python
+VENV := .venv
+PYTHON := $(VENV)/bin/python
 INSTALL := uv
 INSTALL_CMD := sync
-PYTEST := uv run pytest
+PYTEST := $(VENV)/bin/pytest
 
 ARGV :=
 SRC_MYPY ?= .
-FLAKE8 := uv run flake8
-MYPY := uv run mypy
+FLAKE8 := $(VENV)/bin/flake8
+MYPY := $(VENV)/bin/mypy
 
 # **************************************************************************** #
 #									.PHONY									   #
