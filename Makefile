@@ -114,11 +114,11 @@ lint:
 	$(ECHO) "$(CYAN)Running flake8...$(RESET)";
 	$(FLAKE8) --exclude=.venv;
 	$(ECHO) "$(CYAN)Running mypy...$(RESET)";
-	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=.venv $(SRC_MYPY)
+	$(MYPY) --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=.venv $(SRC_MYPY)
 
 lint-strict:
 	$(FLAKE8) --exclude=.venv
-	$(MYPY) --strict --exclude=.venv $(SRC_MYPY)
+	$(MYPY) --explicit-package-bases --strict --exclude=.venv $(SRC_MYPY)
 
 clean:
 	$(ECHO) "$(CYAN)Suppression de __pycache__...$(RESET) "
