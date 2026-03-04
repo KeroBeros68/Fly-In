@@ -22,24 +22,21 @@ ECHO    := echo -e
 # **************************************************************************** #
 
 NAME := main.py
-VENV := .venv
-PYTHON := $(VENV)/bin/python
+PYTHON := uv run python
 INSTALL := uv
 INSTALL_CMD := sync
-PYTEST := pytest
+PYTEST := uv run pytest
 
 ARGV :=
 SRC_MYPY ?= .
-
-ifeq ($(strip $(SRC_MYPY)),)
-$(error SRC_MYPY must not be empty)
-endif
+FLAKE8 := uv run flake8
+MYPY := uv run mypy
 
 # **************************************************************************** #
 #									.PHONY									   #
 # **************************************************************************** #
 
-.PHONY: install run debug lint lint-strict clean fclean \
+.PHONY: help install run debug lint lint-strict clean fclean re \
 		st add _commit push_feat push_fix push_refactor \
 		push_docs push_style push_chore test
 
@@ -83,58 +80,54 @@ help:
 #									Rules									   #
 # **************************************************************************** #
 
-$(VENV):
-	python3 -m venv $(VENV)
-
-install: $(VENV)
-	$(ECHO) -n "${CYAN}Checking $(INSTALL)...${RESET} ";
+install:
+	$(ECHO) -n "$(CYAN)Checking $(INSTALL)...$(RESET) ";
 	if command -v $(INSTALL) > /dev/null 2>&1; then
-		$(ECHO) "${GREEN}✓ $(INSTALL) is installed${RESET}";
+		$(ECHO) "$(GREEN)✓ $(INSTALL) is installed$(RESET)";
 	else
-		$(ECHO) "${YELLOW}⚠ $(INSTALL) not found${RESET}";
-		$(ECHO) -n "${CYAN}Installing $(INSTALL)...${RESET} ";
+		$(ECHO) "$(YELLOW)⚠ $(INSTALL) not found$(RESET)";
+		$(ECHO) -n "$(CYAN)Installing $(INSTALL)...$(RESET) ";
 		if python3 -m pip install --user --upgrade $(INSTALL) > /dev/null 2>&1; then
-			$(ECHO) "${GREEN}✓${RESET}";
+			$(ECHO) "$(GREEN)✓$(RESET)";
 		else
-			$(ECHO) "${RED}✗ Failed to install $(INSTALL)${RESET}";
+			$(ECHO) "$(RED)✗ Failed to install $(INSTALL)$(RESET)";
 			exit 1;
 		fi;
 	fi;
-	$(ECHO) -n "${CYAN}Installing dependencies with $(INSTALL)...${RESET} ";
+	$(ECHO) -n "$(CYAN)Installing dependencies with $(INSTALL)...$(RESET) ";
 	if $(INSTALL) $(INSTALL_CMD) > /dev/null 2>&1; then
-		$(ECHO) "${GREEN}✓${RESET}";
-	else \
-		$(ECHO) "${RED}✗${RESET}";
+		$(ECHO) "$(GREEN)✓$(RESET)";
+	else
+		$(ECHO) "$(RED)✗$(RESET)";
 		$(INSTALL) $(INSTALL_CMD);
 	fi;
-	$(INSTALL) add --dev flake8 mypy pytest
-	$(ECHO) "${GREEN}✓ Installation complete${RESET}";
+	$(ECHO) "$(GREEN)✓ Installation complete$(RESET)";
 
-run: $(VENV)
+run:
 	$(PYTHON) $(NAME) $(ARGV)
 
-debug: $(VENV)
+debug:
 	$(PYTHON) -m pdb $(NAME) $(ARGV)
 
-lint: $(VENV)
-	$(ECHO) "${CYAN}Running flake8...${RESET}";
-	$(PYTHON) -m flake8 --exclude=matrix_env;
-	$(ECHO) "${CYAN}Running mypy...${RESET}";
-	$(PYTHON) -m mypy --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=matrix_env $(SRC_MYPY)
+lint:
+	$(ECHO) "$(CYAN)Running flake8...$(RESET)";
+	$(FLAKE8) --exclude=.venv;
+	$(ECHO) "$(CYAN)Running mypy...$(RESET)";
+	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=.venv $(SRC_MYPY)
 
-lint-strict: $(VENV)
-	$(PYTHON) -m flake8 --exclude=matrix_env
-	$(PYTHON) -m mypy --strict --exclude=matrix_env $(SRC_MYPY)
+lint-strict:
+	$(FLAKE8) --exclude=.venv
+	$(MYPY) --strict --exclude=.venv $(SRC_MYPY)
 
 clean:
-	printf "$(CYAN)Suppression de __pycache__...$(RESET) "
+	$(ECHO) "$(CYAN)Suppression de __pycache__...$(RESET) "
 	if find . -type d -name "__pycache__" | grep -q .; then
 		find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null;
 		$(ECHO) "$(GREEN)✓ Dossiers __pycache__ supprimés$(RESET)";
 	else
 		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)";
 	fi
-	printf "$(CYAN)Suppression de .mypy_cache...$(RESET) "
+	$(ECHO) "$(CYAN)Suppression de .mypy_cache...$(RESET) "
 	if find . -type d -name ".mypy_cache" | grep -q .; then
 		find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null;
 		$(ECHO) "$(GREEN)✓ Dossiers .mypy_cache supprimés$(RESET)";
@@ -143,7 +136,7 @@ clean:
 	fi
 
 fclean: clean
-	printf "$(CYAN)Suppression de app.log...$(RESET) "
+	$(ECHO) "$(CYAN)Suppression de app.log...$(RESET) "
 	if find . -name "app.log" -type f | grep -q .; then
 		find . -name "app.log" -type f -exec rm -f {} + 2>/dev/null;
 		$(ECHO) "$(GREEN)✓ Fichier app.log supprimé$(RESET)";
@@ -151,9 +144,11 @@ fclean: clean
 		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)";
 	fi
 
-test: $(VENV)
+re: fclean install
+
+test:
 	$(ECHO) "$(GREEN)Running tests...$(RESET)"
-	$(PYTHON) -m $(PYTEST)
+	$(PYTEST)
 
 st:
 	git status
