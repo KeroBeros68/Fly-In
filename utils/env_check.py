@@ -13,6 +13,7 @@ import site
 import sys
 import os
 import time
+import threading
 from importlib import import_module, metadata
 
 
@@ -99,19 +100,32 @@ def _check_dependencies(module_list: list[str]) -> bool:
 
     for raw_name in module_list:
         package_name: str = re.split(r"[><=!;\s\[]", raw_name)[0].strip()
-        spinner = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-        for frame in spinner:
-            sys.stdout.write(f"\r    {frame} Loading {package_name}...")
-            sys.stdout.flush()
-            time.sleep(0.05)
+        stop_spinner: threading.Event = threading.Event()
+
+        def _spin(name: str = package_name) -> None:
+            frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+            i = 0
+            while not stop_spinner.is_set():
+                sys.stdout.write(f"\r    {frames[i % len(frames)]} "
+                                 f"Loading {name}...")
+                sys.stdout.flush()
+                time.sleep(0.05)
+                i += 1
+
+        t = threading.Thread(target=_spin, daemon=True)
+        t.start()
 
         try:
             import_module(package_name)
             meta = metadata.metadata(package_name)
+            stop_spinner.set()
+            t.join()
             print(f"\r    [OK] {meta['Name']} {meta['Version']} — loaded")
             lines_written += 1
         except ModuleNotFoundError:
             all_loaded = False
+            stop_spinner.set()
+            t.join()
             print(
                 f"\r    [MISSING] '{package_name}' could not be imported. "
                 "Run 'uv sync' to install missing dependencies."
@@ -144,10 +158,11 @@ def check_process() -> None:
                 check, line = _check_dependencies(dependencies)
                 if not check:
                     sys.exit(1)
-                else:
-                    sys.stdout.write(f"\033[{line + 13}A\033[J")
-                    sys.stdout.flush()
+                time.sleep(0.2)
+                sys.stdout.write(f"\033[{line + 13}A\033[J")
+                sys.stdout.flush()
             except FileNotFoundError:
                 pass
     except Exception as e:
         sys.stderr.write(f"Error: {e}")
+        input("\n\nPress Enter to exit...")
