@@ -7,7 +7,7 @@ from logs import setup_logger
 from utils import check_process
 
 
-def main():
+def main() -> None:
     logger = logging.getLogger("Fly-In")
     logger.info("Programm starting")
     check_process()

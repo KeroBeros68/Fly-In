@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
-from parsing.models import ConnectionModel, HubModel
+from parsing.models.HubModel import HubModel
+from parsing.models.ConnectionModel import ConnectionModel
 
 
 class MapModel(BaseModel):

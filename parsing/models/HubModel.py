@@ -35,7 +35,7 @@ class HubModel(BaseModel):
         ),
     )
     zone: Optional[ZoneEnum] = Field(
-        default=ZoneEnum.NORMAL.value,
+        default=ZoneEnum.NORMAL,
         description=(
             "Zone type determining movement cost and accessibility: normal"
             " (1 turn), restricted (2 turns), priority (1 turn, preferred),"

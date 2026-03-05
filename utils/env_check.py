@@ -80,7 +80,7 @@ def _reality_process(virtual_env: str | None) -> None:
     print("Then restart the program.")
 
 
-def _check_dependencies(module_list: list[str]) -> bool:
+def _check_dependencies(module_list: list[str]) -> tuple[bool, int]:
     """
     Verify that all required packages are installed.
 
