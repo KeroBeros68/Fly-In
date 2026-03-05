@@ -117,7 +117,9 @@ lint:
 	$(MYPY) --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=.venv $(SRC_MYPY)
 
 lint-strict:
+	$(ECHO) "$(CYAN)Running flake8...$(RESET)";
 	$(FLAKE8) --exclude=.venv
+	$(ECHO) "$(CYAN)Running mypy...$(RESET)";
 	$(MYPY) --explicit-package-bases --strict --exclude=.venv $(SRC_MYPY)
 
 clean:
