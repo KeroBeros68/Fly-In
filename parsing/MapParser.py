@@ -85,13 +85,15 @@ class MapParser:
         color = metadata.get("color")
         try:
             max_drones = (
-                int(metadata["max_drones"])
-                if "max_drones" in metadata
-                else 1
+                int(metadata["max_drones"]) if "max_drones" in metadata else 1
             )
         except ValueError:
             raise MapNbDronesError(f"Error in max drone for {parts[0]}")
-        zone = ZoneEnum(metadata["zone"]) if "zone" in metadata else ZoneEnum.NORMAL
+        zone = (
+            ZoneEnum(metadata["zone"])
+            if "zone" in metadata
+            else ZoneEnum.NORMAL
+        )
 
         return HubModel(
             name=name,
@@ -120,3 +122,6 @@ class MapParser:
 
     @staticmethod
     def _parse_connections(data: list[str]) -> list[ConnectionModel]:
+        connection_lines = [d for d in data if d.startswith("connection: ")]
+        print(connection_lines)
+        return []
