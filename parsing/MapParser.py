@@ -24,7 +24,6 @@ class MapParser:
             nb_drones: int = int(value)
         except ValueError:
             raise MapNbDronesError(nb_drones=value)
-        logger.info(f"Nb drone: {nb_drones}")
 
         hubs: list[HubModel] = MapParser._parse_hubs(clean_data)
         start_hub: HubModel = next(
@@ -40,7 +39,7 @@ class MapParser:
             start_hub=start_hub,
             end_hub=end_hub,
             hubs=hubs,
-            connections=[...],
+            connections=[],
         )
         return map
 
@@ -88,11 +87,11 @@ class MapParser:
             max_drones = (
                 int(metadata["max_drones"])
                 if "max_drones" in metadata
-                else None
+                else 1
             )
         except ValueError:
             raise MapNbDronesError(f"Error in max drone for {parts[0]}")
-        zone = ZoneEnum(metadata["zone"]) if "zone" in metadata else None
+        zone = ZoneEnum(metadata["zone"]) if "zone" in metadata else ZoneEnum.NORMAL
 
         return HubModel(
             name=name,
@@ -118,3 +117,6 @@ class MapParser:
             or d.startswith("end_hub: ")
         ]
         return [MapParser._parse_hub_line(line) for line in hub_lines]
+
+    @staticmethod
+    def _parse_connections(data: list[str]) -> list[ConnectionModel]:

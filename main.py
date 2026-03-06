@@ -35,6 +35,7 @@ def main() -> None:
     logger.info(content)
     try:
         config = MapParser.process(content)
+        logger.info(config)
     except MapError as e:
         logger.error(f"{e}")
         exit_programm()
