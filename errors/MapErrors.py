@@ -16,6 +16,11 @@ class MapFileNotFoundError(MapError):
         super().__init__(f"Map file not found: '{file_path}'")
 
 
+class MapNbDronesError(MapError):
+    def __init__(self, nb_drones: str):
+        super().__init__(f"Wrong drone number: '{nb_drones}'")
+
+
 class MapMissingHubError(MapError):
     """Raised when start_hub or end_hub is missing from the map."""
 
