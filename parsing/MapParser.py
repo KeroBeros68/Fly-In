@@ -39,7 +39,7 @@ class MapParser:
             start_hub=start_hub,
             end_hub=end_hub,
             hubs=hubs,
-            connections=[],
+            connections=MapParser._parse_connections(clean_data),
         )
         return map
 
@@ -123,5 +123,24 @@ class MapParser:
     @staticmethod
     def _parse_connections(data: list[str]) -> list[ConnectionModel]:
         connection_lines = [d for d in data if d.startswith("connection: ")]
-        print(connection_lines)
-        return []
+        return [
+            MapParser._parse_connection_line(line) for line in connection_lines
+        ]
+
+    @staticmethod
+    def _parse_connection_line(line: str) -> ConnectionModel:
+        _, _, rest = line.partition(": ")
+
+        if "[" in rest:
+            connection, meta_part = rest.split("[", 1)
+            metadata = MapParser._parse_metadata(meta_part)
+        else:
+            connection = rest
+            metadata = {}
+
+        parts = connection.split("-")
+        max_link_capacity = metadata.get("max_link_capacity", 1)
+
+        return ConnectionModel(
+            zone1=parts[0], zone2=parts[1], max_link_capacity=max_link_capacity
+        )

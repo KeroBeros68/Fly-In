@@ -13,11 +13,11 @@ class ConnectionModel(BaseModel):
             "(zone1-zone2 is bidirectional)"
         )
     )
-    max_drone: Optional[int] = Field(
+    max_link_capacity: Optional[int] = Field(
         default=1,
         ge=1,
         description=(
-            "Maximum number of drones allowed to traverse this"
+            "Maximum number of link allowed to traverse this"
             " connection simultaneously (default: 1, must be > 0)"
         ),
     )

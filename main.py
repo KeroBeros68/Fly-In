@@ -40,7 +40,7 @@ def main() -> None:
         logger.error(f"{e}")
         exit_programm()
 
-    print(config)
+    print(config.connections)
     exit_programm()
 
 
