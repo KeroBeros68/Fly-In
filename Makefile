@@ -152,8 +152,13 @@ fclean: clean
 re: fclean install
 
 test:
-	$(ECHO) "$(GREEN)Running tests...$(RESET)"
-	$(PYTEST)
+	$(ECHO) "$(CYAN)Running tests...$(RESET)"
+	if $(PYTEST); then
+		$(ECHO) "$(GREEN)✓ All tests passed$(RESET)";
+	else
+		$(ECHO) "$(RED)✗ Tests failed$(RESET)";
+		exit 1;
+	fi
 
 st:
 	git status
@@ -167,6 +172,7 @@ add:
 	$(ECHO) "$(GREEN)✔ Done$(RESET)\n"
 
 _commit: add
+	$(MAKE) test
 	BRANCH=$$(git branch --show-current);
 	if [ -z "$(M)" ]; then
 		$(ECHO) "$(RED)Error: Le message du commit (M) est vide !$(RESET)";
