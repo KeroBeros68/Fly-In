@@ -63,6 +63,14 @@ class MapParser:
         return result
 
     @staticmethod
+    def _split_meta(rest: str) -> tuple[str, dict]:
+        """Sépare la partie base et les métadonnées '[key=value ...]'"""
+        if "[" in rest:
+            base, meta_part = rest.split("[", 1)
+            return base, MapParser._parse_metadata(meta_part)
+        return rest, {}
+
+    @staticmethod
     def _parse_hub_line(line: str) -> HubModel:
         """
         Parse une ligne hub: 'start_hub: name x y [color=green max_drones=2]'
@@ -70,12 +78,7 @@ class MapParser:
         hub_type_str, _, rest = line.partition(": ")
         hub_type = HubTypeEnum(hub_type_str)
 
-        if "[" in rest:
-            coords_part, meta_part = rest.split("[", 1)
-            metadata = MapParser._parse_metadata(meta_part)
-        else:
-            coords_part = rest
-            metadata = {}
+        coords_part, metadata = MapParser._split_meta(rest)
 
         parts = coords_part.split()
         name = parts[0]
@@ -133,12 +136,7 @@ class MapParser:
     def _parse_connection_line(line: str) -> ConnectionModel:
         _, _, rest = line.partition(": ")
 
-        if "[" in rest:
-            connection, meta_part = rest.split("[", 1)
-            metadata = MapParser._parse_metadata(meta_part)
-        else:
-            connection = rest
-            metadata = {}
+        connection, metadata = MapParser._split_meta(rest)
 
         parts = connection.split("-")
         max_link_capacity = metadata.get("max_link_capacity", 1)
