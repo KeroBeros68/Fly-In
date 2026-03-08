@@ -112,7 +112,8 @@ class MapParser:
         """Split a line into its base content and optional metadata block.
 
         Args:
-            rest: Remaining line content after the prefix (e.g. 'name x y [key=val]').
+            rest: Remaining line content after the prefix (e.g. 'name x y
+                                                                [key=val]').
 
         Returns:
             A tuple of (base_string, metadata_dict). If no '[' is present,
@@ -126,7 +127,8 @@ class MapParser:
     def __parse_hub_line(self, line: str) -> HubModel:
         """Parse a single hub line into a HubModel.
 
-        Expected format: '<type>: <name> <x> <y> [color=... max_drones=... zone=...]'
+        Expected format: '<type>: <name> <x> <y> [color=... max_drones=...
+                                                                zone=...]'
 
         Args:
             line: A raw hub line from the map file.
@@ -245,4 +247,4 @@ class MapParser:
         except ValidationError as e:
             raise MapConnectionError(str(e)) from e
         except ValueError as e:
-            raise MapConnectionError(e)
+            raise MapConnectionError(str(e))
