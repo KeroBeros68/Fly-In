@@ -9,6 +9,8 @@ from logs import setup_logger
 from parsing import MapParser
 from utils import check_process
 
+TERMINAL: str = "gnome-terminal"
+
 logger = logging.getLogger("Fly-In")
 
 
@@ -37,7 +39,7 @@ def main() -> None:
     try:
         parser: MapParser = MapParser(content)
         config = parser.process()
-    except (MapError) as e:
+    except MapError as e:
         logger.error(f"{e}")
         exit_programm()
     print(repr(config))
@@ -48,7 +50,7 @@ if __name__ == "__main__":
     if "--child" not in sys.argv:
         args = ["python3", sys.argv[0], "--child"] + sys.argv[1:]
         subprocess.Popen(
-            ["gnome-terminal", "--"] + args,
+            [TERMINAL, "--"] + args,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True,
