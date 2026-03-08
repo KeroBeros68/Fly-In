@@ -27,3 +27,14 @@ class MapModel(BaseModel):
             "List of all bidirectional edges connecting hubs in the network"
         )
     )
+
+    def __repr__(self) -> str:
+        res: str = f"nb_drone: {self.nb_drones}\n\n"
+        res += repr(self.start_hub) + "\n"
+        res += repr(self.end_hub) + "\n"
+        for h in self.hubs:
+            res += repr(h) + "\n"
+        res += "\n"
+        for c in self.connections:
+            res += repr(c) + "\n"
+        return res

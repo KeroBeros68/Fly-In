@@ -36,13 +36,13 @@ def main() -> None:
 
     logger.info(content)
     try:
-        config = MapParser.process(content)
-        logger.info(config)
+        parser: MapParser = MapParser(content)
+        config = parser.process()
+        logger.info(repr(config))
     except (MapError, ValidationError) as e:
         logger.error(f"{e}")
         exit_programm()
-
-    print(config.connections)
+    print(repr(config))
     exit_programm()
 
 

@@ -21,3 +21,9 @@ class ConnectionModel(BaseModel):
             " connection simultaneously (default: 1, must be > 0)"
         ),
     )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.zone1:<14}{'<->':^12}{self.zone2:<20}"
+            f"max_capacity={self.max_link_capacity}"
+        )

@@ -14,9 +14,11 @@ logger = logging.getLogger("Fly-In")
 
 
 class MapParser:
-    @staticmethod
-    def process(data: str) -> MapModel:
-        clean_data: list[str] = MapParser._sanitize(data)
+    def __init__(self, raw_data: str) -> None:
+        self.__raw_data: str = raw_data
+
+    def process(self) -> MapModel:
+        clean_data: list[str] = MapParser._sanitize(self.__raw_data)
         logger.info(f"Data sanitized: {clean_data}")
 
         value: Any = clean_data.pop(0)[11::]

@@ -27,14 +27,14 @@ class HubModel(BaseModel):
             " representation (any single-word string)"
         ),
     )
-    max_drones: Optional[int] = Field(
+    max_drones: int = Field(
         default=1,
         description=(
             "Maximum number of drones allowed to occupy this hub"
             " simultaneously (default: 1, must be > 0)"
         ),
     )
-    zone: Optional[ZoneEnum] = Field(
+    zone: ZoneEnum = Field(
         default=ZoneEnum.NORMAL,
         description=(
             "Zone type determining movement cost and accessibility: normal"
@@ -42,3 +42,13 @@ class HubModel(BaseModel):
             " blocked (inaccessible)"
         ),
     )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.name:<20}"
+            f"{self.hub_type.value:<12}"
+            f"{str(self.pos):<14}"
+            f"{self.zone.value:<12}"
+            f"max_drones={self.max_drones:<4}"
+            f"color={self.color}"
+        )
