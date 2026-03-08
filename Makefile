@@ -125,19 +125,22 @@ lint-strict:
 	$(MAKE) clean
 
 clean:
-	$(ECHO) "$(CYAN)Suppression de __pycache__...$(RESET) "
-	if find . -type d -name "__pycache__" | grep -q .; then
-		find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null;
-		$(ECHO) "$(GREEN)✓ Dossiers __pycache__ supprimés$(RESET)";
-	else
-		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)";
+	$(ECHO) "$(CYAN)Suppression de __pycache__...$(RESET)"
+	LIST_PYCACHE=$$(find . -type d -name "__pycache__" 2>/dev/null)
+	if [ -n "$$LIST_PYCACHE" ]; then \
+		find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null; \
+		$(ECHO) "$(GREEN)✓ Dossiers __pycache__ supprimés$(RESET)"; \
+	else \
+		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)"; \
 	fi
-	$(ECHO) "$(CYAN)Suppression de .mypy_cache...$(RESET) "
-	if find . -type d -name ".mypy_cache" | grep -q .; then
-		find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null;
-		$(ECHO) "$(GREEN)✓ Dossiers .mypy_cache supprimés$(RESET)";
-	else
-		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)";
+	
+	$(ECHO) "$(CYAN)Suppression de .mypy_cache...$(RESET)"
+	LIST_MYPY=$$(find . -type d -name ".mypy_cache" 2>/dev/null)
+	if [ -n "$$LIST_MYPY" ]; then \
+		find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null; \
+		$(ECHO) "$(GREEN)✓ Dossiers .mypy_cache supprimés$(RESET)"; \
+	else \
+		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)"; \
 	fi
 
 fclean: clean
