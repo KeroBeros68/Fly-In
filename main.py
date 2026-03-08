@@ -7,7 +7,7 @@ import sys
 from errors.MapErrors import MapError
 from logs import setup_logger
 from parsing import MapParser
-from utils import check_process
+from utils import RunSecurity
 
 TERMINAL: str = "gnome-terminal"
 
@@ -22,7 +22,8 @@ def exit_programm() -> None:
 
 def main() -> None:
     logger.info("Programm starting")
-    check_process()
+    secure_check = RunSecurity()
+    secure_check.check_process()
     file: str = sys.argv[2]
     logger.info(f"File to open and read: '{file}'")
     try:
