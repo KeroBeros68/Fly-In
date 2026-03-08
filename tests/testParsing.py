@@ -1,6 +1,7 @@
 import pytest
 
 from errors.MapErrors import (
+    MapConnectionError,
     MapDuplicateHubError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
@@ -41,6 +42,14 @@ class TestParser:
         "connection: start-waypoint1\n"
     )
 
+    BAD_HUB_CONNECTION: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint2\n"
+    )
+
     def test_no_start(self):
         parser = MapParser(self.NO_START)
         try:
@@ -78,5 +87,15 @@ class TestParser:
             pytest.fail("INVALID[ Hub duplication ]")
         except (
             MapDuplicateHubError,
+        ):
+            pass
+
+    def test_bad_hub_connection(self):
+        parser = MapParser(self.BAD_HUB_CONNECTION)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Bad hub connection ]")
+        except (
+            MapConnectionError,
         ):
             pass

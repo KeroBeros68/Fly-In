@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, model_validator
 
+from errors.MapErrors import MapConnectionError
 from parsing.models.HubModel import HubModel
 from parsing.models.ConnectionModel import ConnectionModel
 
@@ -29,13 +30,27 @@ class MapModel(BaseModel):
     )
 
     @model_validator(mode="after")
-    def __duplicate_hub(self) -> "MapModel":
+    def duplicate_hub(self) -> "MapModel":
         names = [h.name for h in self.hubs]
         names.append(self.start_hub.name)
         names.append(self.end_hub.name)
         if len(names) != len(set(names)):
             from errors.MapErrors import MapDuplicateHubError
+
             raise MapDuplicateHubError("duplicate hub name detected")
+        return self
+
+    @model_validator(mode="after")
+    def invalid_hub_in_connection(self) -> "MapModel":
+        hub_names = [h.name for h in self.hubs]
+        hub_names.append(self.start_hub.name)
+        hub_names.append(self.end_hub.name)
+        connection_names = {
+            name for h in self.connections for name in (h.zone1, h.zone2)
+        }
+        for name in connection_names:
+            if name not in hub_names:
+                raise MapConnectionError("invalide hub in connection")
         return self
 
     def __repr__(self) -> str:
