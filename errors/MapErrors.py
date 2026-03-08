@@ -48,6 +48,32 @@ class MapInvalidCoordinatesError(MapError):
 
 
 class MapConnectionError(MapError):
+    """Base error for all connection-related errors."""
 
-    def __init__(self, connection: str):
-        super().__init__(f"Hub validation error: '{connection}'")
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
+class MapDuplicateConnectionError(MapConnectionError):
+    """Raised when a connection (or its mirror) is defined more than once."""
+
+    def __init__(self, zone1: str, zone2: str):
+        super().__init__(
+            f"Connection '{zone1}-{zone2}' is defined more than once"
+        )
+
+
+class MapInvalidConnectionError(MapConnectionError):
+    """Raised when a connection references a hub that does not exist."""
+
+    def __init__(self, hub_name: str):
+        super().__init__(
+            f"Connection references unknown hub: '{hub_name}'"
+        )
+
+
+class MapConnectionValidationError(MapConnectionError):
+    """Raised when a connection fails Pydantic field validation."""
+
+    def __init__(self, detail: str):
+        super().__init__(f"Connection validation error: '{detail}'")

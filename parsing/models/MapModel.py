@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field, model_validator
 
-from errors.MapErrors import MapConnectionError
+from errors.MapErrors import (
+    MapDuplicateConnectionError,
+    MapDuplicateHubError,
+    MapInvalidConnectionError,
+)
 from parsing.models.HubModel import HubModel
 from parsing.models.ConnectionModel import ConnectionModel
 
@@ -35,8 +39,6 @@ class MapModel(BaseModel):
         names.append(self.start_hub.name)
         names.append(self.end_hub.name)
         if len(names) != len(set(names)):
-            from errors.MapErrors import MapDuplicateHubError
-
             raise MapDuplicateHubError("duplicate hub name detected")
         return self
 
@@ -50,7 +52,17 @@ class MapModel(BaseModel):
         }
         for name in connection_names:
             if name not in hub_names:
-                raise MapConnectionError("invalide hub in connection")
+                raise MapInvalidConnectionError(name)
+        return self
+
+    @model_validator(mode="after")
+    def mirror_connection(self) -> "MapModel":
+        seen: set[frozenset[str]] = set()
+        for h in self.connections:
+            key = frozenset((h.zone1, h.zone2))
+            if key in seen:
+                raise MapDuplicateConnectionError(h.zone1, h.zone2)
+            seen.add(key)
         return self
 
     def __repr__(self) -> str:

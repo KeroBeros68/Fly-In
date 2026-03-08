@@ -3,7 +3,7 @@ import logging
 from pydantic import ValidationError
 
 from errors.MapErrors import (
-    MapConnectionError,
+    MapConnectionValidationError,
     MapHubError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
@@ -245,6 +245,6 @@ class MapParser:
                 max_link_capacity=int(max_link_capacity),
             )
         except ValidationError as e:
-            raise MapConnectionError(str(e)) from e
+            raise MapConnectionValidationError(str(e)) from e
         except ValueError as e:
-            raise MapConnectionError(str(e))
+            raise MapConnectionValidationError(str(e))

@@ -50,6 +50,15 @@ class TestParser:
         "connection: start-waypoint2\n"
     )
 
+    MIRROR_CONNECTION: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1 [max_link_capacity=1]\n"
+        "connection: waypoint1-start [max_link_capacity=1]\n"
+    )
+
     MAX_LINK_CONNECTION: str = (
         "nb_drones: 2\n"
         "start_hub: start 0 0 [color=green]\n"
@@ -103,6 +112,16 @@ class TestParser:
         try:
             parser.process()
             pytest.fail("INVALID[ Bad hub connection ]")
+        except (
+            MapConnectionError,
+        ):
+            pass
+
+    def test_miror_connection(self):
+        parser = MapParser(self.MIRROR_CONNECTION)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Mirror Connection ]")
         except (
             MapConnectionError,
         ):
