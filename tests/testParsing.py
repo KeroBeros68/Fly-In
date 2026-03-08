@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 import pytest
 
 from errors.MapErrors import (
@@ -5,6 +6,7 @@ from errors.MapErrors import (
     MapDuplicateHubError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
+    MapNbDronesError,
 )
 from parsing import MapParser
 
@@ -46,6 +48,24 @@ class TestParser:
         "connection: final_gate1-goal\n"
         "connection: final_gate2-goal\n"
         "connection: final_gate3-goal\n"
+    )
+
+    ZERO_DRONE: str = (
+        "nb_drones: 0\n"
+        "start_hub: start 0 0 [color=green max_drones=15]\n"
+        "hub: dist_gate1 1 0 [color=orange max_drones=1]\n"
+        "end_hub: goal 13 0 [color=gold max_drones=15]\n"
+        "connection: start-dist_gate1\n"
+        "connection: dist_gate1-goal\n"
+    )
+
+    NO_DRONE: str = (
+        "nb_drones: \n"
+        "start_hub: start 0 0 [color=green max_drones=15]\n"
+        "hub: dist_gate1 1 0 [color=orange max_drones=1]\n"
+        "end_hub: goal 13 0 [color=gold max_drones=15]\n"
+        "connection: start-dist_gate1\n"
+        "connection: dist_gate1-goal\n"
     )
 
     NO_START: str = (
@@ -123,6 +143,22 @@ class TestParser:
         assert result.end_hub.name == "goal"
         assert len(result.hubs) == 13
         assert len(result.connections) == 18
+
+    def test_zero_drone(self):
+        parser = MapParser(self.ZERO_DRONE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Zero Drone ]")
+        except (ValidationError):
+            pass
+
+    def test_no_drone(self):
+        parser = MapParser(self.NO_DRONE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ No Drone ]")
+        except (MapNbDronesError):
+            pass
 
     def test_no_start(self):
         parser = MapParser(self.NO_START)
