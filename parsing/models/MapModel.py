@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from parsing.models.HubModel import HubModel
 from parsing.models.ConnectionModel import ConnectionModel
@@ -27,6 +27,16 @@ class MapModel(BaseModel):
             "List of all bidirectional edges connecting hubs in the network"
         )
     )
+
+    @model_validator(mode="after")
+    def __duplicate_hub(self) -> "MapModel":
+        names = [h.name for h in self.hubs]
+        names.append(self.start_hub.name)
+        names.append(self.end_hub.name)
+        if len(names) != len(set(names)):
+            from errors.MapErrors import MapDuplicateHubError
+            raise MapDuplicateHubError("duplicate hub name detected")
+        return self
 
     def __repr__(self) -> str:
         res: str = f"nb_drone: {self.nb_drones}\n\n"

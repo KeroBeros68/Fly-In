@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 
-from pydantic import ValidationError
 
 from errors.MapErrors import MapError
 from logs import setup_logger
@@ -38,8 +37,7 @@ def main() -> None:
     try:
         parser: MapParser = MapParser(content)
         config = parser.process()
-        logger.info(repr(config))
-    except (MapError, ValidationError) as e:
+    except (MapError) as e:
         logger.error(f"{e}")
         exit_programm()
     print(repr(config))

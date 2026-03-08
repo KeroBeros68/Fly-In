@@ -1,4 +1,3 @@
-from pydantic import ValidationError
 import pytest
 
 from errors.MapErrors import (
@@ -10,7 +9,6 @@ from parsing import MapParser
 
 
 class TestParser:
-
     NO_START: str = (
         "nb_drones: 2\n"
         "hub: start 0 0 [color=green]\n"
@@ -34,9 +32,19 @@ class TestParser:
         "connection: start-waypoint1\n"
     )
 
+    DUP_HUB: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
+    )
+
     def test_no_start(self):
+        parser = MapParser(self.NO_START)
         try:
-            MapParser.process(self.NO_START)
+            parser.process()
             pytest.fail("INVALID[ No Start ]")
         except (
             MapMissingHubError,
@@ -44,8 +52,9 @@ class TestParser:
             pass
 
     def test_no_end(self):
+        parser = MapParser(self.NO_END)
         try:
-            MapParser.process(self.NO_END)
+            parser.process()
             pytest.fail("INVALID[ No End ]")
         except (
             MapMissingHubError,
@@ -53,10 +62,21 @@ class TestParser:
             pass
 
     def test_pos_is_alpha(self):
+        parser = MapParser(self.POS_IS_ALPHA)
         try:
-            MapParser.process(self.POS_IS_ALPHA)
+            parser.process()
             pytest.fail("INVALID[ Pos is alpha ]")
         except (
             MapInvalidCoordinatesError,
+        ):
+            pass
+
+    def test_dub_hub(self):
+        parser = MapParser(self.DUP_HUB)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Hub duplication ]")
+        except (
+            MapDuplicateHubError,
         ):
             pass

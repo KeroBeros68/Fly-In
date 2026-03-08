@@ -19,18 +19,31 @@ logger = logging.getLogger("Fly-In")
 class MapParser:
     def __init__(self, raw_data: str) -> None:
         self.__raw_data: str = raw_data
+        self.__clean_data: list[str] = []
+        self.__map_model: MapModel | None = None
 
     def process(self) -> MapModel:
-        clean_data: list[str] = MapParser._sanitize(self.__raw_data)
-        logger.info(f"Data sanitized: {clean_data}")
+        self.__sanitize(self.__raw_data)
+        logger.info(f"Data sanitized: {self.__clean_data}")
+        self.__build_map()
+        logger.info(repr(self.__map_model))
+        assert self.__map_model is not None
+        return self.__map_model
 
-        value: str = clean_data.pop(0)[11::]
+    def __sanitize(self, data: str) -> None:
+        self.__clean_data = [
+            d for d in data.split("\n") if d.strip() and not d.startswith("#")
+        ]
+
+    def __build_map(self) -> None:
+        data = self.__clean_data
+        value: str = data.pop(0)[11::]
         try:
             nb_drones: int = int(value)
         except ValueError:
             raise MapNbDronesError(nb_drones=value)
 
-        hubs: list[HubModel] = MapParser._parse_hubs(clean_data)
+        hubs: list[HubModel] = MapParser._parse_hubs(data)
         start_hub: HubModel = next(
             h for h in hubs if h.hub_type == HubTypeEnum.START
         )
@@ -39,21 +52,13 @@ class MapParser:
         )
         hubs = [h for h in hubs if h.hub_type == HubTypeEnum.HUB]
 
-        map_model: MapModel = MapModel(
+        self.__map_model = MapModel(
             nb_drones=nb_drones,
             start_hub=start_hub,
             end_hub=end_hub,
             hubs=hubs,
-            connections=MapParser._parse_connections(clean_data),
+            connections=MapParser._parse_connections(data),
         )
-        return map_model
-
-    @staticmethod
-    def _sanitize(data: str) -> list[str]:
-        clean_data = [
-            d for d in data.split("\n") if d.strip() and not d.startswith("#")
-        ]
-        return clean_data
 
     @staticmethod
     def _parse_metadata(raw: str) -> dict[str, str]:
