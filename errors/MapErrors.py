@@ -44,9 +44,7 @@ class MapInvalidCoordinatesError(MapError):
     """Raised when a hub has invalid (non-numeric) coordinates."""
 
     def __init__(self, name: str, x: str, y: str):
-        super().__init__(
-            f"Hub '{name}' has invalid coordinates: ({x}, {y})"
-        )
+        super().__init__(f"Hub '{name}' has invalid coordinates: ({x}, {y})")
 
 
 class MapConnectionError(MapError):

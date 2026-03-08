@@ -16,6 +16,17 @@ import time
 from importlib import import_module, metadata
 
 
+class RunEnvironmentError(Exception):
+    """Raised when the runtime environment check fails."""
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+    def __str__(self) -> str:
+        return f"[EnvironmentError] {self.message}"
+
+
 class RunSecurity:
 
     def __init__(self) -> None:
@@ -29,28 +40,30 @@ class RunSecurity:
 
         Verifies that the script runs in a virtual environment and
         validates that all required dependencies are installed.
-        Exits with code 1 if environment or dependencies are invalid.
+
+        Raises:
+            RunEnvironmentError: If no venv is detected or dependencies
+            are missing.
         """
 
         self.__get_sys_infos()
         try:
             if self.__sys_prefix and not self.__virtual_env:
                 self._display_global_env_warning(self.__virtual_env)
-                input("\n\nPress Enter to exit...")
-                sys.exit(1)
+                raise RunEnvironmentError("No virtual environment detected.")
             else:
                 self._display_venv_info(self.__virtual_env)
                 self.__get_dependencies()
                 check, line = self._check_dependencies(self.__dependencies)
                 if not check:
-                    sys.exit(1)
+                    raise RunEnvironmentError("Missing required dependencies.")
                 time.sleep(0.2)
                 sys.stdout.write(f"\033[{line + 13}A\033[J")
                 sys.stdout.flush()
-
+        except RunEnvironmentError:
+            raise
         except Exception as e:
-            sys.stderr.write(f"Error: {e}")
-            input("\n\nPress Enter to exit...")
+            raise RunEnvironmentError(f"Unexpected error: {e}") from e
 
     def __get_sys_infos(self) -> None:
         self.__virtual_env = os.environ.get("VIRTUAL_ENV")

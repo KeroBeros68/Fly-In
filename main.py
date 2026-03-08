@@ -7,7 +7,7 @@ import sys
 from errors.MapErrors import MapError
 from logs import setup_logger
 from parsing import MapParser
-from utils import RunSecurity
+from utils import RunSecurity, RunEnvironmentError
 
 TERMINAL: str = "gnome-terminal"
 
@@ -23,7 +23,11 @@ def exit_programm() -> None:
 def main() -> None:
     logger.info("Programm starting")
     secure_check = RunSecurity()
-    secure_check.check_process()
+    try:
+        secure_check.check_process()
+    except RunEnvironmentError as e:
+        logger.error(f"{e}")
+        exit_programm()
     file: str = sys.argv[2]
     logger.info(f"File to open and read: '{file}'")
     try:
