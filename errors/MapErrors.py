@@ -21,6 +21,11 @@ class MapNbDronesError(MapError):
         super().__init__(f"Wrong drone number: '{nb_drones}'")
 
 
+class MapHubError(MapError):
+    def __init__(self, hub: str):
+        super().__init__(f"Hub validation error: '{hub}'")
+
+
 class MapMissingHubError(MapError):
     """Raised when start_hub or end_hub is missing from the map."""
 
@@ -42,3 +47,9 @@ class MapInvalidCoordinatesError(MapError):
         super().__init__(
             f"Hub '{name}' has invalid coordinates: ({x}, {y})"
         )
+
+
+class MapConnectionError(MapError):
+
+    def __init__(self, connection: str):
+        super().__init__(f"Hub validation error: '{connection}'")

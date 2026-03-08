@@ -1,7 +1,10 @@
 import logging
-from typing import Any
+
+from pydantic import ValidationError
 
 from errors.MapErrors import (
+    MapConnectionError,
+    MapHubError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
     MapNbDronesError,
@@ -21,7 +24,7 @@ class MapParser:
         clean_data: list[str] = MapParser._sanitize(self.__raw_data)
         logger.info(f"Data sanitized: {clean_data}")
 
-        value: Any = clean_data.pop(0)[11::]
+        value: str = clean_data.pop(0)[11::]
         try:
             nb_drones: int = int(value)
         except ValueError:
@@ -36,14 +39,14 @@ class MapParser:
         )
         hubs = [h for h in hubs if h.hub_type == HubTypeEnum.HUB]
 
-        map: MapModel = MapModel(
+        map_model: MapModel = MapModel(
             nb_drones=nb_drones,
             start_hub=start_hub,
             end_hub=end_hub,
             hubs=hubs,
             connections=MapParser._parse_connections(clean_data),
         )
-        return map
+        return map_model
 
     @staticmethod
     def _sanitize(data: str) -> list[str]:
@@ -53,7 +56,7 @@ class MapParser:
         return clean_data
 
     @staticmethod
-    def _parse_metadata(raw: str) -> dict:
+    def _parse_metadata(raw: str) -> dict[str, str]:
         """Parse '[key=value key=value ...]' → {'key': 'value', ...}"""
         raw = raw.strip().strip("[]")
         result = {}
@@ -99,15 +102,17 @@ class MapParser:
             if "zone" in metadata
             else ZoneEnum.NORMAL
         )
-
-        return HubModel(
-            name=name,
-            hub_type=hub_type,
-            pos=(x, y),
-            color=color,
-            max_drones=max_drones,
-            zone=zone,
-        )
+        try:
+            return HubModel(
+                name=name,
+                hub_type=hub_type,
+                pos=(x, y),
+                color=color,
+                max_drones=max_drones,
+                zone=zone,
+            )
+        except ValidationError as e:
+            raise MapHubError(str(e)) from e
 
     @staticmethod
     def _parse_hubs(data: list[str]) -> list[HubModel]:
@@ -141,6 +146,11 @@ class MapParser:
         parts = connection.split("-")
         max_link_capacity = metadata.get("max_link_capacity", 1)
 
-        return ConnectionModel(
-            zone1=parts[0], zone2=parts[1], max_link_capacity=max_link_capacity
-        )
+        try:
+            return ConnectionModel(
+                zone1=parts[0],
+                zone2=parts[1],
+                max_link_capacity=max_link_capacity,
+            )
+        except ValidationError as e:
+            raise MapConnectionError(str(e)) from e

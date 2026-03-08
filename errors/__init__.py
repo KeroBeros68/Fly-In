@@ -5,6 +5,8 @@ from .MapErrors import (
     MapMissingHubError,
     MapDuplicateHubError,
     MapInvalidCoordinatesError,
+    MapHubError,
+    MapConnectionError,
 )
 
 __all__ = [
@@ -14,4 +16,6 @@ __all__ = [
     "MapMissingHubError",
     "MapDuplicateHubError",
     "MapInvalidCoordinatesError",
+    "MapHubError",
+    "MapConnectionError",
 ]
