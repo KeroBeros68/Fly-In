@@ -2,15 +2,15 @@ import logging
 
 from pydantic import ValidationError
 
-from errors.MapErrors import (
+from ..errors.MapErrors import (
     MapConnectionValidationError,
     MapHubError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
     MapNbDronesError,
 )
-from parsing.models import ConnectionModel, HubModel, MapModel
-from parsing.utils.Enum import HubTypeEnum, ZoneEnum
+from .models import ConnectionModel, HubModel, MapModel
+from .utils.Enum import HubTypeEnum, ZoneEnum
 
 
 logger = logging.getLogger("Fly-In")

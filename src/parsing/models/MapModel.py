@@ -1,12 +1,12 @@
 from pydantic import BaseModel, Field, model_validator
 
-from errors.MapErrors import (
+from ...errors.MapErrors import (
     MapDuplicateConnectionError,
     MapDuplicateHubError,
     MapInvalidConnectionError,
 )
-from parsing.models.HubModel import HubModel
-from parsing.models.ConnectionModel import ConnectionModel
+from .HubModel import HubModel
+from .ConnectionModel import ConnectionModel
 
 
 class MapModel(BaseModel):

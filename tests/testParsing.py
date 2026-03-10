@@ -1,14 +1,14 @@
 from pydantic import ValidationError
 import pytest
 
-from errors.MapErrors import (
+from src.errors.MapErrors import (
     MapConnectionError,
     MapDuplicateHubError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
     MapNbDronesError,
 )
-from parsing import MapParser
+from src.parsing import MapParser
 
 
 class TestParser:

@@ -1,4 +1,5 @@
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
 
@@ -14,6 +15,7 @@ def setup_logger() -> logging.Logger:
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )
 
+    os.makedirs("logs", exist_ok=True)
     file_handler = RotatingFileHandler(
         "logs/app.log",
         maxBytes=5_000_000,

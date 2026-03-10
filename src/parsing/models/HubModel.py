@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from parsing.utils.Enum import HubTypeEnum, ZoneEnum
+from ..utils.Enum import HubTypeEnum, ZoneEnum
 
 
 class HubModel(BaseModel):

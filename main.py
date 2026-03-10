@@ -4,12 +4,13 @@ import subprocess
 import sys
 
 
-from errors.MapErrors import MapError
-from logs import setup_logger
-from parsing import MapParser
-from utils import RunSecurity, RunEnvironmentError
+from src.errors.MapErrors import MapError
+from src.logs import setup_logger
+from src.parsing import MapParser
+from src.utils import RunSecurity, RunEnvironmentError
 
 TERMINAL: str = "gnome-terminal"
+TERMINAL_KONSOLE: str = "konsole"
 
 logger = logging.getLogger("Fly-In")
 
@@ -55,7 +56,8 @@ if __name__ == "__main__":
     if "--child" not in sys.argv:
         args = ["python3", sys.argv[0], "--child"] + sys.argv[1:]
         subprocess.Popen(
-            [TERMINAL, "--"] + args,
+            # [TERMINAL, "--"] + args,
+            [TERMINAL_KONSOLE, "-e"] + args,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True,
