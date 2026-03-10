@@ -135,7 +135,7 @@ class TestParser:
         "connection: start-waypoint1 [max_link_capacity=banane]\n"
     )
 
-    def test_good_map(self):
+    def test_good_map(self) -> None:
         parser = MapParser(self.GOOD_MAP)
         result = parser.process()
         assert result.nb_drones == 15
@@ -144,7 +144,7 @@ class TestParser:
         assert len(result.hubs) == 13
         assert len(result.connections) == 18
 
-    def test_zero_drone(self):
+    def test_zero_drone(self) -> None:
         parser = MapParser(self.ZERO_DRONE)
         try:
             parser.process()
@@ -152,7 +152,7 @@ class TestParser:
         except (ValidationError):
             pass
 
-    def test_no_drone(self):
+    def test_no_drone(self) -> None:
         parser = MapParser(self.NO_DRONE)
         try:
             parser.process()
@@ -160,7 +160,7 @@ class TestParser:
         except (MapNbDronesError):
             pass
 
-    def test_no_start(self):
+    def test_no_start(self) -> None:
         parser = MapParser(self.NO_START)
         try:
             parser.process()
@@ -168,7 +168,7 @@ class TestParser:
         except (MapMissingHubError,):
             pass
 
-    def test_dup_start(self):
+    def test_dup_start(self) -> None:
         parser = MapParser(self.DUP_START)
         try:
             parser.process()
@@ -176,7 +176,7 @@ class TestParser:
         except (MapDuplicateHubError,):
             pass
 
-    def test_no_end(self):
+    def test_no_end(self) -> None:
         parser = MapParser(self.NO_END)
         try:
             parser.process()
@@ -184,7 +184,7 @@ class TestParser:
         except (MapMissingHubError,):
             pass
 
-    def test_pos_is_alpha(self):
+    def test_pos_is_alpha(self) -> None:
         parser = MapParser(self.POS_IS_ALPHA)
         try:
             parser.process()
@@ -192,7 +192,7 @@ class TestParser:
         except (MapInvalidCoordinatesError,):
             pass
 
-    def test_dub_hub(self):
+    def test_dub_hub(self) -> None:
         parser = MapParser(self.DUP_HUB)
         try:
             parser.process()
@@ -200,7 +200,7 @@ class TestParser:
         except (MapDuplicateHubError,):
             pass
 
-    def test_bad_hub_connection(self):
+    def test_bad_hub_connection(self) -> None:
         parser = MapParser(self.BAD_HUB_CONNECTION)
         try:
             parser.process()
@@ -208,7 +208,7 @@ class TestParser:
         except (MapConnectionError,):
             pass
 
-    def test_miror_connection(self):
+    def test_miror_connection(self) -> None:
         parser = MapParser(self.MIRROR_CONNECTION)
         try:
             parser.process()
@@ -216,7 +216,7 @@ class TestParser:
         except (MapConnectionError,):
             pass
 
-    def test_max_link_connection(self):
+    def test_max_link_connection(self) -> None:
         parser = MapParser(self.MAX_LINK_CONNECTION)
         try:
             parser.process()
