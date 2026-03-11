@@ -3,8 +3,8 @@ import os
 from logging.handlers import RotatingFileHandler
 
 
-def setup_logger() -> logging.Logger:
-    logger = logging.getLogger("Fly-In")
+def setup_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
 
     if logger.handlers:
         return logger
