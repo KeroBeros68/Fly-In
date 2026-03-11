@@ -142,6 +142,14 @@ clean:
 	else \
 		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)"; \
 	fi
+	$(ECHO) "$(CYAN)Suppression de .pytest_cache...$(RESET)"
+	LIST_PYTEST=$$(find . -type d -name ".pytest_cache" 2>/dev/null)
+	if [ -n "$$LIST_PYTEST" ]; then \
+		find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null; \
+		$(ECHO) "$(GREEN)✓ Dossiers .pytest_cache supprimés$(RESET)"; \
+	else \
+		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)"; \
+	fi
 
 fclean: clean
 	$(ECHO) "$(CYAN)Suppression de app.log...$(RESET) "
