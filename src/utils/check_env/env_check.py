@@ -49,10 +49,10 @@ class RunSecurity:
         self.__get_sys_infos()
         try:
             if self.__sys_prefix and not self.__virtual_env:
-                self._display_global_env_warning(self.__virtual_env)
+                self.__display_global_env_warning(self.__virtual_env)
                 raise RunEnvironmentError("No virtual environment detected.")
             else:
-                self._display_venv_info(self.__virtual_env)
+                self.__display_venv_info(self.__virtual_env)
                 self.__get_dependencies()
                 check, line = self._check_dependencies(self.__dependencies)
                 if not check:
@@ -77,7 +77,7 @@ class RunSecurity:
         except FileNotFoundError:
             pass
 
-    def _display_venv_info(self, virtual_env: str | None) -> None:
+    def __display_venv_info(self, virtual_env: str | None) -> None:
         """
         Display virtual environment information and success message.
 
@@ -116,7 +116,7 @@ class RunSecurity:
             for s in site.getsitepackages():
                 print(s)
 
-    def _display_global_env_warning(self, virtual_env: str | None) -> None:
+    def __display_global_env_warning(self, virtual_env: str | None) -> None:
         """
         Display global environment warning and setup instructions.
 
