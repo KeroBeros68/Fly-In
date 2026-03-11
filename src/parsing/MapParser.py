@@ -68,7 +68,7 @@ class MapParser:
         Extracts the drone count from the first line, parses all hubs
         and connections, and stores the result in __map_model.
         """
-        data = self.__clean_data
+        data = self.__clean_data.copy()
         value: str = data.pop(0)[11::]
         try:
             nb_drones: int = int(value)
