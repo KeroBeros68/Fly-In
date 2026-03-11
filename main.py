@@ -4,10 +4,9 @@ import subprocess
 import sys
 
 
-from src.errors.MapErrors import MapError
-from src.logs import setup_logger
-from src.parsing import MapParser
-from src.utils import RunSecurity, RunEnvironmentError
+from src.utils.logger import setup_logger
+from src.parsing import MapParser, MapError
+from src.utils.check_env import RunSecurity, RunEnvironmentError
 
 TERMINAL: str = "gnome-terminal"
 TERMINAL_KONSOLE: str = "konsole"

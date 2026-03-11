@@ -2,7 +2,7 @@ import logging
 
 from pydantic import ValidationError
 
-from ..errors.MapErrors import (
+from .errors.MapErrors import (
     MapConnectionValidationError,
     MapHubError,
     MapInvalidCoordinatesError,

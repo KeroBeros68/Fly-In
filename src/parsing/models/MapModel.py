@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, model_validator
 
-from ...errors.MapErrors import (
+from ..errors.MapErrors import (
     MapDuplicateConnectionError,
     MapDuplicateHubError,
     MapInvalidConnectionError,

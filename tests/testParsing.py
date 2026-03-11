@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 import pytest
 
-from src.errors.MapErrors import (
+from src.parsing.errors.MapErrors import (
     MapConnectionError,
     MapDuplicateHubError,
     MapInvalidCoordinatesError,
