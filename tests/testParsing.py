@@ -6,7 +6,7 @@ from src.parsing.errors.MapErrors import (
     MapDuplicateHubError,
     MapEmptyError,
     MapInvalidCoordinatesError,
-    MapInvalidHubTypeError,
+    MapPrefixError,
     MapMissingHubError,
     MapNbDronesError,
 )
@@ -131,6 +131,14 @@ class TestParser:
         "connection: start-waypoint1\n"
     )
 
+    INVALID_PREFIX_CONNECTION: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "Coucou: start-waypoint2\n"
+    )
+
     BAD_HUB_CONNECTION: str = (
         "nb_drones: 2\n"
         "start_hub: start 0 0 [color=green]\n"
@@ -234,7 +242,7 @@ class TestParser:
         try:
             parser.process()
             pytest.fail("INVALID[ Hub type error]")
-        except (MapInvalidHubTypeError,):
+        except (MapPrefixError,):
             pass
 
     def test_dub_hub(self) -> None:
@@ -243,6 +251,14 @@ class TestParser:
             parser.process()
             pytest.fail("INVALID[ Hub duplication ]")
         except (MapDuplicateHubError,):
+            pass
+
+    def test_invalid_prefix_connection(self) -> None:
+        parser = MapParser(self.INVALID_PREFIX_CONNECTION)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Invalid prefix connection ]")
+        except (MapPrefixError,):
             pass
 
     def test_bad_hub_connection(self) -> None:

@@ -8,7 +8,7 @@ from .MapErrors import (
     MapHubError,
     MapConnectionError,
     MapEmptyError,
-    MapInvalidHubTypeError,
+    MapPrefixError,
 )
 
 __all__ = [
@@ -21,5 +21,5 @@ __all__ = [
     "MapHubError",
     "MapConnectionError",
     "MapEmptyError",
-    "MapInvalidHubTypeError",
+    "MapPrefixError",
 ]

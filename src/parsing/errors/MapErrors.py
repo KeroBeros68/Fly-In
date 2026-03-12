@@ -31,9 +31,9 @@ class MapHubError(MapError):
         super().__init__(f"Hub validation error: '{hub}'")
 
 
-class MapInvalidHubTypeError(MapError):
-    def __init__(self, hub_type: str):
-        super().__init__(f"Invalid hub type: '{hub_type}'")
+class MapPrefixError(MapError):
+    def __init__(self, prefix: str):
+        super().__init__(f"Invalid prefix: '{prefix}'")
 
 
 class MapMissingHubError(MapError):

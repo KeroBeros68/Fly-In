@@ -6,7 +6,7 @@ from .errors.MapErrors import (
     MapConnectionValidationError,
     MapHubError,
     MapInvalidCoordinatesError,
-    MapInvalidHubTypeError,
+    MapPrefixError,
     MapMissingHubError,
     MapNbDronesError,
     MapEmptyError,
@@ -81,6 +81,14 @@ class MapParser:
             nb_drones: int = int(value)
         except ValueError:
             raise MapNbDronesError(nb_drones=value)
+
+        known_prefixes = ("hub: ", "start_hub: ", "end_hub: ", "connection: ")
+        for line in data:
+            if ": " in line and not any(
+                line.startswith(p) for p in known_prefixes
+            ):
+                hub_type_str = line.partition(": ")[0]
+                raise MapPrefixError(hub_type_str)
 
         hubs: list[HubModel] = self.__parse_hubs(data)
         start_hub: HubModel = next(
@@ -208,14 +216,6 @@ class MapParser:
             or d.startswith("start_hub: ")
             or d.startswith("end_hub: ")
         ]
-
-        known_prefixes = ("hub: ", "start_hub: ", "end_hub: ", "connection: ")
-        for line in data:
-            if ": " in line and not any(
-                line.startswith(p) for p in known_prefixes
-            ):
-                hub_type_str = line.partition(": ")[0]
-                raise MapInvalidHubTypeError(hub_type_str)
 
         return [self.__parse_hub_line(line) for line in hub_lines]
 
