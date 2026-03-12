@@ -16,6 +16,11 @@ class MapFileNotFoundError(MapError):
         super().__init__(f"Map file not found: '{file_path}'")
 
 
+class MapEmptyError(MapError):
+    def __init__(self):
+        super().__init__("Map file is empty")
+
+
 class MapNbDronesError(MapError):
     def __init__(self, nb_drones: str):
         super().__init__(f"Wrong drone number: '{nb_drones}'")

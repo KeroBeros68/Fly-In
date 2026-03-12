@@ -8,6 +8,7 @@ from .errors.MapErrors import (
     MapInvalidCoordinatesError,
     MapMissingHubError,
     MapNbDronesError,
+    MapEmptyError,
 )
 from .models import ConnectionModel, HubModel, MapModel
 from .utils.Enum import HubTypeEnum, ZoneEnum
@@ -61,6 +62,8 @@ class MapParser:
         self.__clean_data = [
             d for d in data.split("\n") if d.strip() and not d.startswith("#")
         ]
+        if len(self.__clean_data) == 0:
+            raise MapEmptyError()
 
     def __build_map(self) -> None:
         """Build the MapModel from the sanitized lines.

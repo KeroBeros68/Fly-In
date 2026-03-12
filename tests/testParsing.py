@@ -4,6 +4,7 @@ import pytest
 from src.parsing.errors.MapErrors import (
     MapConnectionError,
     MapDuplicateHubError,
+    MapEmptyError,
     MapInvalidCoordinatesError,
     MapMissingHubError,
     MapNbDronesError,
@@ -49,6 +50,8 @@ class TestParser:
         "connection: final_gate2-goal\n"
         "connection: final_gate3-goal\n"
     )
+
+    EMPTY_MAP: str = ""
 
     ZERO_DRONE: str = (
         "nb_drones: 0\n"
@@ -144,12 +147,20 @@ class TestParser:
         assert len(result.hubs) == 13
         assert len(result.connections) == 18
 
+    def test_empty_map(self) -> None:
+        parser = MapParser(self.EMPTY_MAP)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Empty map ]")
+        except MapEmptyError:
+            pass
+
     def test_zero_drone(self) -> None:
         parser = MapParser(self.ZERO_DRONE)
         try:
             parser.process()
             pytest.fail("INVALID[ Zero Drone ]")
-        except (ValidationError):
+        except ValidationError:
             pass
 
     def test_no_drone(self) -> None:
@@ -157,7 +168,7 @@ class TestParser:
         try:
             parser.process()
             pytest.fail("INVALID[ No Drone ]")
-        except (MapNbDronesError):
+        except MapNbDronesError:
             pass
 
     def test_no_start(self) -> None:
