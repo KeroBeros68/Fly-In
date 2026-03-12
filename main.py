@@ -3,7 +3,8 @@ import subprocess
 import sys
 
 
-from src import Controller
+from src import Controller, ControllerError
+from src.utils.check_env.env_check import RunSecurity
 from src.utils.logger import setup_logger
 
 TERMINAL: list[str] = ["gnome-terminal", "--"]
@@ -11,8 +12,11 @@ TERMINAL: list[str] = ["gnome-terminal", "--"]
 
 
 def main() -> None:
-    controller = Controller(map_path=sys.argv[2])
-    controller.process()
+    controller = Controller(map_path=sys.argv[2], secure_env=RunSecurity())
+    try:
+        controller.process()
+    except ControllerError:
+        pass
 
 
 if __name__ == "__main__":

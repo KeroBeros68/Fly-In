@@ -1,4 +1,4 @@
-from .Controller import Controller
+from .Controller import Controller, ControllerError
 
 
-__all__ = ["Controller"]
+__all__ = ["Controller", "ControllerError"]
