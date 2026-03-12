@@ -54,7 +54,7 @@ class RunSecurity:
             else:
                 self.__display_venv_info(self.__virtual_env)
                 self.__get_dependencies()
-                check, line = self._check_dependencies(self.__dependencies)
+                check, line = self.__check_dependencies(self.__dependencies)
                 if not check:
                     raise RunEnvironmentError("Missing required dependencies.")
                 time.sleep(0.2)
@@ -142,7 +142,7 @@ class RunSecurity:
         )
         print("Then restart the program.")
 
-    def _check_dependencies(self, module_list: list[str]) -> tuple[bool, int]:
+    def __check_dependencies(self, module_list: list[str]) -> tuple[bool, int]:
         """
         Verify that all required packages are installed.
 
