@@ -11,7 +11,7 @@ TERMINAL: list[str] = ["gnome-terminal", "--"]
 
 
 def main() -> None:
-    controller = Controller(sys.argv[2])
+    controller = Controller(map_path=sys.argv[2])
     controller.process()
 
 

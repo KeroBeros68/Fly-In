@@ -1,25 +1,28 @@
 import logging
 import os
-from typing import NoReturn
+from typing import NoReturn, Optional
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
 from src.utils.check_env.env_check import RunEnvironmentError, RunSecurity
 
 
-class Controller():
-    def __init__(self, map_path: str) -> None:
+class Controller:
+    def __init__(
+        self, map_path: str, secure_env: Optional[RunSecurity] = None
+    ) -> None:
+        self.__secure_env: Optional[RunSecurity] = secure_env
         self.logger = logging.getLogger("Fly-In")
         self.map_path: str = map_path
 
     def process(self) -> None:
         self.logger.info("Programm starting")
-        secure_check = RunSecurity()
-        try:
-            secure_check.check_process()
-        except RunEnvironmentError as e:
-            self.logger.error(f"{e}")
-            self.exit_programm()
+        if self.__secure_env:
+            try:
+                self.__secure_env.check_process()
+            except RunEnvironmentError as e:
+                self.logger.error(f"{e}")
+                self.exit_programm()
 
         content: str = self.__read_file()
         self.__parse_content(content)
