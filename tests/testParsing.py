@@ -53,6 +53,14 @@ class TestParser:
 
     EMPTY_MAP: str = ""
 
+    NO_DRONE_LINE: str = (
+        "start_hub: start 0 0 [color=green max_drones=15]\n"
+        "hub: dist_gate1 1 0 [color=orange max_drones=1]\n"
+        "end_hub: goal 13 0 [color=gold max_drones=15]\n"
+        "connection: start-dist_gate1\n"
+        "connection: dist_gate1-goal\n"
+    )
+
     ZERO_DRONE: str = (
         "nb_drones: 0\n"
         "start_hub: start 0 0 [color=green max_drones=15]\n"
@@ -153,6 +161,14 @@ class TestParser:
             parser.process()
             pytest.fail("INVALID[ Empty map ]")
         except MapEmptyError:
+            pass
+
+    def test_no_drone_line(self) -> None:
+        parser = MapParser(self.NO_DRONE_LINE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ No drone line ]")
+        except MapNbDronesError:
             pass
 
     def test_zero_drone(self) -> None:

@@ -72,6 +72,9 @@ class MapParser:
         and connections, and stores the result in __map_model.
         """
         data = self.__clean_data.copy()
+        if "nb_drones: " not in data[0]:
+            raise MapNbDronesError("1st line must be 'nb_drone: XX'")
+
         value: str = data.pop(0)[11::]
         try:
             nb_drones: int = int(value)
