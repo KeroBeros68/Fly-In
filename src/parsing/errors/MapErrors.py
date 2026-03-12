@@ -31,6 +31,11 @@ class MapHubError(MapError):
         super().__init__(f"Hub validation error: '{hub}'")
 
 
+class MapInvalidHubTypeError(MapError):
+    def __init__(self, hub_type: str):
+        super().__init__(f"Invalid hub type: '{hub_type}'")
+
+
 class MapMissingHubError(MapError):
     """Raised when start_hub or end_hub is missing from the map."""
 

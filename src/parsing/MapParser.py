@@ -6,6 +6,7 @@ from .errors.MapErrors import (
     MapConnectionValidationError,
     MapHubError,
     MapInvalidCoordinatesError,
+    MapInvalidHubTypeError,
     MapMissingHubError,
     MapNbDronesError,
     MapEmptyError,
@@ -207,6 +208,15 @@ class MapParser:
             or d.startswith("start_hub: ")
             or d.startswith("end_hub: ")
         ]
+
+        known_prefixes = ("hub: ", "start_hub: ", "end_hub: ", "connection: ")
+        for line in data:
+            if ": " in line and not any(
+                line.startswith(p) for p in known_prefixes
+            ):
+                hub_type_str = line.partition(": ")[0]
+                raise MapInvalidHubTypeError(hub_type_str)
+
         return [self.__parse_hub_line(line) for line in hub_lines]
 
     def __parse_connections(self, data: list[str]) -> list[ConnectionModel]:

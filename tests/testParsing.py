@@ -6,6 +6,7 @@ from src.parsing.errors.MapErrors import (
     MapDuplicateHubError,
     MapEmptyError,
     MapInvalidCoordinatesError,
+    MapInvalidHubTypeError,
     MapMissingHubError,
     MapNbDronesError,
 )
@@ -107,6 +108,15 @@ class TestParser:
     POS_IS_ALPHA: str = (
         "nb_drones: 2\n"
         "start_hub: start b 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
+    )
+
+    INVALID_HUB_TYPE: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "Doomed: waypoint1 1 0 [color=blue]\n"
         "hub: waypoint1 1 0 [color=blue]\n"
         "end_hub: goal 3 0 [color=red]\n"
         "connection: start-waypoint1\n"
@@ -217,6 +227,14 @@ class TestParser:
             parser.process()
             pytest.fail("INVALID[ Pos is alpha ]")
         except (MapInvalidCoordinatesError,):
+            pass
+
+    def test_invalid_hub_type(self) -> None:
+        parser = MapParser(self.INVALID_HUB_TYPE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Hub type error]")
+        except (MapInvalidHubTypeError,):
             pass
 
     def test_dub_hub(self) -> None:
