@@ -76,7 +76,7 @@ class MapParser:
         if "nb_drones: " not in data[0]:
             raise MapNbDronesError("1st line must be 'nb_drone: XX'")
 
-        value: str = data.pop(0)[11::]
+        value: str = data.pop(0).split(":")[1]
         try:
             nb_drones: int = int(value)
         except ValueError:
