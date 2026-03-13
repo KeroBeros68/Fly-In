@@ -5,6 +5,7 @@ from pydantic import ValidationError
 from .errors.MapErrors import (
     MapConnectionError,
     MapConnectionValidationError,
+    MapDuplicateHubError,
     MapHubError,
     MapInvalidCoordinatesError,
     MapPrefixError,
@@ -212,11 +213,19 @@ class MapParser:
 
         Raises:
             MapMissingHubError: If start_hub or end_hub is absent.
+            MapDuplicateHubError: If more than one start_hub or end_hub.
         """
+        start_count = sum(1 for d in data if d.startswith("start_hub:"))
+        end_count = sum(1 for d in data if d.startswith("end_hub:"))
+
         if not any(d.startswith("start_hub:") for d in data):
             raise MapMissingHubError("start_hub")
         if not any(d.startswith("end_hub:") for d in data):
             raise MapMissingHubError("end_hub")
+        if start_count > 1:
+            raise MapDuplicateHubError("start_hub")
+        if end_count > 1:
+            raise MapDuplicateHubError("end_hub")
 
         hub_lines = [
             d

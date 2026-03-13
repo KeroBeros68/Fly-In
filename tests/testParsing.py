@@ -92,7 +92,7 @@ class TestParser:
     DUP_START: str = (
         "nb_drones: 2\n"
         "start_hub: start 0 0 [color=green]\n"
-        "start_hub: start 0 0 [color=green]\n"
+        "hub: start 0 0 [color=green]\n"
         "hub: start 0 0 [color=green]\n"
         "hub: waypoint1 1 0 [color=blue]\n"
         "end_hub: goal 3 0 [color=red]\n"
@@ -127,6 +127,24 @@ class TestParser:
         "start_hub: start 0 0 [color=green]\n"
         "Doomed: waypoint1 1 0 [color=blue]\n"
         "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
+    )
+
+    DUP_START_TYPE: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "start_hub: waypoint1 1 0 [color=blue]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
+    )
+
+    DUP_END_TYPE: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: waypoint1 1 0 [color=blue]\n"
         "end_hub: goal 3 0 [color=red]\n"
         "connection: start-waypoint1\n"
     )
@@ -261,6 +279,22 @@ class TestParser:
         try:
             parser.process()
             pytest.fail("INVALID[ Dup Start ]")
+        except (MapDuplicateHubError,):
+            pass
+
+    def test_dup_start_ype(self) -> None:
+        parser = MapParser(self.DUP_START_TYPE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Dup Start type ]")
+        except (MapDuplicateHubError,):
+            pass
+
+    def test_dup_end_type(self) -> None:
+        parser = MapParser(self.DUP_END_TYPE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Dup End type ]")
         except (MapDuplicateHubError,):
             pass
 
