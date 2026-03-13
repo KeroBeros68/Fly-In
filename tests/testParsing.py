@@ -105,6 +105,14 @@ class TestParser:
         "connection: start-waypoint1\n"
     )
 
+    NO_POS: str = (
+        "nb_drones: 2\n"
+        "start_hub: start [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
+    )
+
     POS_IS_ALPHA: str = (
         "nb_drones: 2\n"
         "start_hub: start b 0 [color=green]\n"
@@ -227,6 +235,14 @@ class TestParser:
             parser.process()
             pytest.fail("INVALID[ No End ]")
         except (MapMissingHubError,):
+            pass
+
+    def test_no_pos(self) -> None:
+        parser = MapParser(self.NO_POS)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ No position coord ]")
+        except (MapInvalidCoordinatesError,):
             pass
 
     def test_pos_is_alpha(self) -> None:

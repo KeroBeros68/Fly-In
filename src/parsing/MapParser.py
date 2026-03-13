@@ -167,6 +167,8 @@ class MapParser:
             x, y = int(parts[1]), int(parts[2])
         except ValueError:
             raise MapInvalidCoordinatesError(name=name, x=parts[1], y=parts[2])
+        except IndexError:
+            raise MapInvalidCoordinatesError(name=name, x="None", y="None")
 
         color = metadata.get("color")
         try:
