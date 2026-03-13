@@ -3,6 +3,7 @@ import logging
 from pydantic import ValidationError
 
 from .errors.MapErrors import (
+    MapConnectionError,
     MapConnectionValidationError,
     MapHubError,
     MapInvalidCoordinatesError,
@@ -74,7 +75,7 @@ class MapParser:
         and connections, and stores the result in __map_model.
         """
         data = self.__clean_data.copy()
-        if "nb_drones: " not in data[0]:
+        if "nb_drones:" not in data[0]:
             raise MapNbDronesError("1st line must be 'nb_drone: XX'")
 
         value: str = data.pop(0).split(":")[1]
@@ -83,7 +84,7 @@ class MapParser:
         except ValueError:
             raise MapNbDronesError(nb_drones=value)
 
-        known_prefixes = ("hub: ", "start_hub: ", "end_hub: ", "connection: ")
+        known_prefixes = ("hub:", "start_hub:", "end_hub:", "connection:")
         for line in data:
             if ": " in line and not any(
                 line.startswith(p) for p in known_prefixes
@@ -212,17 +213,17 @@ class MapParser:
         Raises:
             MapMissingHubError: If start_hub or end_hub is absent.
         """
-        if not any(d.startswith("start_hub: ") for d in data):
+        if not any(d.startswith("start_hub:") for d in data):
             raise MapMissingHubError("start_hub")
-        if not any(d.startswith("end_hub: ") for d in data):
+        if not any(d.startswith("end_hub:") for d in data):
             raise MapMissingHubError("end_hub")
 
         hub_lines = [
             d
             for d in data
-            if d.startswith("hub: ")
-            or d.startswith("start_hub: ")
-            or d.startswith("end_hub: ")
+            if d.startswith("hub:")
+            or d.startswith("start_hub:")
+            or d.startswith("end_hub:")
         ]
 
         return [self.__parse_hub_line(line) for line in hub_lines]
@@ -236,7 +237,7 @@ class MapParser:
         Returns:
             A list of ConnectionModel instances.
         """
-        connection_lines = [d for d in data if d.startswith("connection: ")]
+        connection_lines = [d for d in data if d.startswith("connection:")]
         return [
             self.__parse_connection_line(line) for line in connection_lines
         ]
@@ -258,6 +259,9 @@ class MapParser:
         _, _, rest = line.partition(": ")
 
         connection, metadata = self.__split_meta(rest)
+
+        if connection.count("-") != 1:
+            raise MapConnectionError(f"Invalide connection {connection}")
 
         parts = connection.split("-")
         max_link_capacity = metadata.get("max_link_capacity", 1)

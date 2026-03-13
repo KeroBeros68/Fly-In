@@ -157,6 +157,31 @@ class TestParser:
         "Coucou: start-waypoint2\n"
     )
 
+    NO_HUB_CONNECTION: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection:\n"
+    )
+
+    ONE_HUB_CONNECTION: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint2 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start\n"
+    )
+
+    THREE_HUB_CONNECTION: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: waypoint2 1 0 [color=blue]\n"
+        "hub: waypoint3 2 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint2-waypoint3\n"
+    )
+
     BAD_HUB_CONNECTION: str = (
         "nb_drones: 2\n"
         "start_hub: start 0 0 [color=green]\n"
@@ -293,6 +318,30 @@ class TestParser:
             parser.process()
             pytest.fail("INVALID[ Invalid prefix connection ]")
         except (MapPrefixError,):
+            pass
+
+    def test_no_hub_connection(self) -> None:
+        parser = MapParser(self.NO_HUB_CONNECTION)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ No hub connection ]")
+        except (MapConnectionError,):
+            pass
+
+    def test_one_hub_connection(self) -> None:
+        parser = MapParser(self.ONE_HUB_CONNECTION)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ One hub connection ]")
+        except (MapConnectionError,):
+            pass
+
+    def test_three_hub_connection(self) -> None:
+        parser = MapParser(self.THREE_HUB_CONNECTION)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Three hub connection ]")
+        except (MapConnectionError,):
             pass
 
     def test_bad_hub_connection(self) -> None:
