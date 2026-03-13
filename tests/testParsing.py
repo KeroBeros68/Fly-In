@@ -5,6 +5,7 @@ from src.parsing.errors.MapErrors import (
     MapConnectionError,
     MapDuplicateHubError,
     MapEmptyError,
+    MapHubError,
     MapInvalidCoordinatesError,
     MapPrefixError,
     MapMissingHubError,
@@ -79,6 +80,14 @@ class TestParser:
         "end_hub: goal 13 0 [color=gold max_drones=15]\n"
         "connection: start-dist_gate1\n"
         "connection: dist_gate1-goal\n"
+    )
+
+    NO_NAME: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green]\n"
+        "hub: 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
     )
 
     NO_START: str = (
@@ -274,6 +283,14 @@ class TestParser:
         except (MapMissingHubError,):
             pass
 
+    def test_no_hub_name(self) -> None:
+        parser = MapParser(self.NO_NAME)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ No hub name ]")
+        except (MapHubError,):
+            pass
+
     def test_dup_start(self) -> None:
         parser = MapParser(self.DUP_START)
         try:
@@ -311,7 +328,7 @@ class TestParser:
         try:
             parser.process()
             pytest.fail("INVALID[ No position coord ]")
-        except (MapInvalidCoordinatesError,):
+        except (MapHubError,):
             pass
 
     def test_pos_is_alpha(self) -> None:
@@ -359,7 +376,7 @@ class TestParser:
         try:
             parser.process()
             pytest.fail("INVALID[ No hub connection ]")
-        except (MapConnectionError,):
+        except (MapPrefixError,):
             pass
 
     def test_one_hub_connection(self) -> None:

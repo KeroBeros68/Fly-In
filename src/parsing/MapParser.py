@@ -64,7 +64,9 @@ class MapParser:
         Populates __clean_data with non-empty, non-comment lines.
         """
         self.__clean_data = [
-            d for d in data.split("\n") if d.strip() and not d.startswith("#")
+            d.split('#')[0].strip()
+            for d in data.split("\n")
+            if d.split('#')[0].strip()
         ]
         if len(self.__clean_data) == 0:
             raise MapEmptyError()
@@ -76,7 +78,7 @@ class MapParser:
         and connections, and stores the result in __map_model.
         """
         data = self.__clean_data.copy()
-        if "nb_drones:" not in data[0]:
+        if not data[0].startswith("nb_drones: "):
             raise MapNbDronesError("1st line must be 'nb_drone: XX'")
 
         value: str = data.pop(0).split(":")[1]
@@ -85,12 +87,12 @@ class MapParser:
         except ValueError:
             raise MapNbDronesError(nb_drones=value)
 
-        known_prefixes = ("hub:", "start_hub:", "end_hub:", "connection:")
+        known_prefixes = ("hub: ", "start_hub: ", "end_hub: ", "connection: ")
         for line in data:
-            if ": " in line and not any(
+            if ":" in line and not any(
                 line.startswith(p) for p in known_prefixes
             ):
-                hub_type_str = line.partition(": ")[0]
+                hub_type_str = line.partition(":")[0]
                 raise MapPrefixError(hub_type_str)
 
         hubs: list[HubModel] = self.__parse_hubs(data)
@@ -159,19 +161,20 @@ class MapParser:
             MapNbDronesError: If max_drones is non-numeric.
             MapHubError: If Pydantic validation fails.
         """
-        hub_type_str, _, rest = line.partition(": ")
-        hub_type = HubTypeEnum(hub_type_str)
+        hub_type_str, _, rest = line.partition(":")
+        hub_type = HubTypeEnum(hub_type_str.strip())
 
         coords_part, metadata = self.__split_meta(rest)
 
         parts = coords_part.split()
+        if len(parts) != 3:
+            raise MapHubError(f"Invalid hub line {coords_part}")
+
         name = parts[0]
         try:
             x, y = int(parts[1]), int(parts[2])
         except ValueError:
             raise MapInvalidCoordinatesError(name=name, x=parts[1], y=parts[2])
-        except IndexError:
-            raise MapInvalidCoordinatesError(name=name, x="None", y="None")
 
         color = metadata.get("color")
         try:
