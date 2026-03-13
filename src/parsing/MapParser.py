@@ -10,6 +10,7 @@ from .errors.MapErrors import (
     MapMissingHubError,
     MapNbDronesError,
     MapEmptyError,
+    MapZoneHubError,
 )
 from .models import ConnectionModel, HubModel, MapModel
 from .utils.Enum import HubTypeEnum, ZoneEnum
@@ -177,11 +178,16 @@ class MapParser:
             )
         except ValueError:
             raise MapNbDronesError(f"Error in max drone for {parts[0]}")
-        zone = (
-            ZoneEnum(metadata["zone"])
-            if "zone" in metadata
-            else ZoneEnum.NORMAL
-        )
+
+        try:
+            zone = (
+                ZoneEnum(metadata["zone"])
+                if "zone" in metadata
+                else ZoneEnum.NORMAL
+            )
+        except ValueError:
+            raise MapZoneHubError(metadata["zone"])
+
         try:
             return HubModel(
                 name=name,

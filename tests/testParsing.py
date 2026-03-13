@@ -9,6 +9,7 @@ from src.parsing.errors.MapErrors import (
     MapPrefixError,
     MapMissingHubError,
     MapNbDronesError,
+    MapZoneHubError,
 )
 from src.parsing import MapParser
 
@@ -125,6 +126,15 @@ class TestParser:
         "nb_drones: 2\n"
         "start_hub: start 0 0 [color=green]\n"
         "Doomed: waypoint1 1 0 [color=blue]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
+        "end_hub: goal 3 0 [color=red]\n"
+        "connection: start-waypoint1\n"
+    )
+
+    INVALID_HUB_ZONE: str = (
+        "nb_drones: 2\n"
+        "start_hub: start 0 0 [color=green, zone=coucou]\n"
+        "hub: waypoint1 1 0 [color=blue]\n"
         "hub: waypoint1 1 0 [color=blue]\n"
         "end_hub: goal 3 0 [color=red]\n"
         "connection: start-waypoint1\n"
@@ -259,6 +269,14 @@ class TestParser:
             parser.process()
             pytest.fail("INVALID[ Hub type error]")
         except (MapPrefixError,):
+            pass
+
+    def test_invalid_hub_zone(self) -> None:
+        parser = MapParser(self.INVALID_HUB_ZONE)
+        try:
+            parser.process()
+            pytest.fail("INVALID[ Hub zone error]")
+        except (MapZoneHubError,):
             pass
 
     def test_dub_hub(self) -> None:

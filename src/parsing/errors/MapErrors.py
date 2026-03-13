@@ -50,6 +50,11 @@ class MapDuplicateHubError(MapError):
         super().__init__(f"Duplicate hub name: '{name}'")
 
 
+class MapZoneHubError(MapError):
+    def __init__(self, zone: str):
+        super().__init__(f"Invalid hub zone name: '{zone}'")
+
+
 class MapInvalidCoordinatesError(MapError):
     """Raised when a hub has invalid (non-numeric) coordinates."""
 

@@ -9,6 +9,7 @@ from .MapErrors import (
     MapConnectionError,
     MapEmptyError,
     MapPrefixError,
+    MapZoneHubError,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "MapConnectionError",
     "MapEmptyError",
     "MapPrefixError",
+    "MapZoneHubError",
 ]
