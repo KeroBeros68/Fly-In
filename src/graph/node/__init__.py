@@ -1,3 +1,3 @@
-from .Node import Node
+from .Node import Node, NodeConnectedNodeError
 
-__all__ = ["Node"]
+__all__ = ["Node", "NodeConnectedNodeError"]
