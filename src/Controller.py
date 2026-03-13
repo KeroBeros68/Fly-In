@@ -1,8 +1,10 @@
 import logging
-from typing import NoReturn, Optional
+from typing import NoReturn, Optional, Tuple
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
+from src.parsing.models import MapModel
+from src.simulation.drone import Drone
 from src.utils.check_env.env_check import RunEnvironmentError, RunSecurity
 
 
@@ -22,7 +24,9 @@ class Controller:
     ) -> None:
         self.__secure_env: Optional[RunSecurity] = secure_env
         self.logger = logging.getLogger("Fly-In")
+
         self.map_path: str = map_path
+        self.drone_list: list[Drone] = []
 
     def process(self) -> None:
         self.logger.info("Programm starting")
@@ -34,7 +38,8 @@ class Controller:
                 self.exit_program()
 
         content: str = self.__read_file()
-        self.__parse_content(content)
+        map_model: MapModel = self.__parse_content(content)
+        self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
         self.exit_program()
 
     def __read_file(self) -> str:
@@ -50,7 +55,7 @@ class Controller:
             self.logger.error("Usage: python main.py <map_file>")
             self.exit_program()
 
-    def __parse_content(self, content: str) -> None:
+    def __parse_content(self, content: str) -> MapModel:
         self.logger.info(content)
         try:
             parser: MapParser = MapParser(content)
@@ -58,7 +63,16 @@ class Controller:
         except MapError as e:
             self.logger.error(f"{e}")
             self.exit_program()
-        print(repr(config))
+        return config
+
+    def __init_simulation(
+        self, nb_drone: int, start_pos: Tuple[int, int]
+    ) -> None:
+        for nb in range(nb_drone):
+            self.drone_list.append(Drone(nb + 1, start_pos))
+        self.logger.info("All drones initialized")
+        for d in self.drone_list:
+            print(d)
 
     def exit_program(self) -> NoReturn:
         self.logger.info("Programm exit")
