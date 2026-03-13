@@ -27,6 +27,12 @@ PYTHON := $(VENV)/bin/python
 INSTALL := uv
 INSTALL_CMD := sync
 PYTEST := $(VENV)/bin/pytest
+TOML_FILE := pyproject.toml
+
+VERSION := $(shell grep '^version' $(TOML_FILE) | sed 's/version = "\(.*\)"/\1/')
+VERSION_MAJOR := $(word 1, $(subst ., ,$(VERSION)))
+VERSION_MINOR := $(word 2, $(subst ., ,$(VERSION)))
+VERSION_PATCH := $(word 3, $(subst ., ,$(VERSION)))
 
 ARGV :=
 SRC_MYPY ?= .
@@ -39,13 +45,14 @@ MYPY := $(VENV)/bin/mypy
 
 .PHONY: help install run debug lint lint-strict clean fclean re \
 		st add _commit push_feat push_fix push_refactor \
-		push_docs push_style push_chore test
+		push_docs push_style push_chore test version \
+		bump-patch bump-minor bump-major push_release
 
 # **************************************************************************** #
-#									Help									   #
+#									Help								  	   #
 # **************************************************************************** #
 
-
+# Show available make commands.
 help:
 	$(ECHO) "$(YELLOW)Available commands:$(RESET)"
 	$(ECHO) ""
@@ -81,6 +88,9 @@ help:
 #									Rules									   #
 # **************************************************************************** #
 
+# ###		APP RULES 		### #
+
+# Install project dependencies.
 install:
 	$(ECHO) -n "$(CYAN)Checking $(INSTALL)...$(RESET) ";
 	if command -v $(INSTALL) > /dev/null 2>&1; then
@@ -103,13 +113,32 @@ install:
 		$(INSTALL) $(INSTALL_CMD);
 	fi;
 	$(ECHO) "$(GREEN)✓ Installation complete$(RESET)";
-
+# Run the main program.
 run:
 	$(PYTHON) $(NAME) $(ARGV)
 
+# Run the program with debugger.
 debug:
 	$(PYTHON) -m pdb $(NAME) $(ARGV)
 
+
+# Reinstall from a clean state.
+re: fclean install
+
+# Run the test suite.
+test:
+	$(ECHO) "$(CYAN)Running tests...$(RESET)"
+	if $(PYTEST); then
+		$(ECHO) "$(GREEN)✓ All tests passed$(RESET)";
+	else
+		$(ECHO) "$(RED)✗ Tests failed$(RESET)";
+		exit 1;
+	fi
+
+
+# ###		LINT RULES 		### #
+
+# Run standard lint checks.
 lint:
 	$(ECHO) "$(CYAN)Running flake8...$(RESET)";
 	$(FLAKE8) --exclude=.venv;
@@ -117,6 +146,7 @@ lint:
 	$(MYPY) --explicit-package-bases --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude=.venv $(SRC_MYPY)
 	$(MAKE) clean
 
+# Run stricter lint checks.
 lint-strict:
 	$(ECHO) "$(CYAN)Running flake8...$(RESET)";
 	$(FLAKE8) --exclude=.venv
@@ -124,6 +154,10 @@ lint-strict:
 	$(MYPY) --explicit-package-bases --strict --exclude=.venv $(SRC_MYPY)
 	$(MAKE) clean
 
+
+# ###		CLEAN RULES 		### #
+
+# Remove cache directories.
 clean:
 	$(ECHO) "$(CYAN)Suppression de __pycache__...$(RESET)"
 	LIST_PYCACHE=$$(find . -type d -name "__pycache__" 2>/dev/null)
@@ -151,6 +185,7 @@ clean:
 		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)"; \
 	fi
 
+# Remove logs after cleaning.
 fclean: clean
 	$(ECHO) "$(CYAN)Suppression de app.log...$(RESET) "
 	if find . -name "app.log" -type f | grep -q .; then
@@ -160,20 +195,14 @@ fclean: clean
 		$(ECHO) "$(YELLOW)⚠ Rien à nettoyer$(RESET)";
 	fi
 
-re: fclean install
 
-test:
-	$(ECHO) "$(CYAN)Running tests...$(RESET)"
-	if $(PYTEST); then
-		$(ECHO) "$(GREEN)✓ All tests passed$(RESET)";
-	else
-		$(ECHO) "$(RED)✗ Tests failed$(RESET)";
-		exit 1;
-	fi
+# ###		GIT RULES 		### #
 
+# Show git working tree status.
 st:
 	git status
 
+# Stage all current changes.
 add:
 	$(ECHO) "$(CYAN)--- Status ---$(RESET)"
 	git status -s
@@ -182,8 +211,8 @@ add:
 	git status -s
 	$(ECHO) "$(GREEN)✔ Done$(RESET)\n"
 
+# Test, commit, and push changes.
 _commit: add
-	$(MAKE) test
 	BRANCH=$$(git branch --show-current);
 	if [ -z "$(M)" ]; then
 		$(ECHO) "$(RED)Error: Le message du commit (M) est vide !$(RESET)";
@@ -193,20 +222,58 @@ _commit: add
 	git push --set-upstream origin $(BRANCH)
 	$(ECHO) "$(GREEN)🚀 Successful push ($(TYPE)).$(RESET)\n"
 
+# Commit and push a release.
+push_release:
+	$(MAKE) test && $(MAKE) bump-major && $(MAKE) _commit TYPE=feat M="$(M)"
+
+# Commit and push a feature.
 push_feat:
-	$(MAKE) _commit TYPE=feat M="$(M)"
+	$(MAKE) test && $(MAKE) bump-minor && $(MAKE) _commit TYPE=feat M="$(M)"
 
+# Commit and push a fix.
 push_fix:
-	$(MAKE) _commit TYPE=fix M="$(M)"
+	$(MAKE) test && $(MAKE) bump-patch && $(MAKE) _commit TYPE=fix M="$(M)"
 
+# Commit and push a refactor.
 push_refactor:
-	$(MAKE) _commit TYPE=refactor M="$(M)"
+	$(MAKE) test && $(MAKE) _commit TYPE=refactor M="$(M)"
 
+# Commit and push documentation.
 push_docs:
-	$(MAKE) _commit TYPE=docs M="$(M)"
+	$(MAKE) test && $(MAKE) _commit TYPE=docs M="$(M)"
 
+# Commit and push style changes.
 push_style:
-	$(MAKE) _commit TYPE=style M="$(M)"
+	$(MAKE) test && $(MAKE) _commit TYPE=style M="$(M)"
 
+# Commit and push maintenance changes.
 push_chore:
-	$(MAKE) _commit TYPE=chore M="$(M)"
+	$(MAKE) test && $(MAKE) _commit TYPE=chore M="$(M)"
+
+
+# ###		VERSIONNING RULES 		### #
+
+# Show current project version.
+version:
+	$(ECHO) "$(CYAN)Version: $(VERSION)$(RESET)"
+
+# Increase patch version number.
+bump-patch:
+	$(eval NEW_PATCH := $(shell echo $$(($(VERSION_PATCH)+1))))
+	$(eval NEW_VERSION := $(VERSION_MAJOR).$(VERSION_MINOR).$(NEW_PATCH))
+	sed -i 's/^version = "$(VERSION)"/version = "$(NEW_VERSION)"/' $(TOML_FILE)
+	$(ECHO) "$(GREEN)Version bumped: $(VERSION) → $(NEW_VERSION)$(RESET)"
+# Increase minor version number.
+
+bump-minor:
+	$(eval NEW_MINOR := $(shell echo $$(($(VERSION_MINOR)+1))))
+	$(eval NEW_VERSION := $(VERSION_MAJOR).$(NEW_MINOR).0)
+	sed -i 's/^version = "$(VERSION)"/version = "$(NEW_VERSION)"/' $(TOML_FILE)
+	$(ECHO) "$(GREEN)Version bumped: $(VERSION) → $(NEW_VERSION)$(RESET)"
+# Increase major version number.
+
+bump-major:
+	$(eval NEW_MAJOR := $(shell echo $$(($(VERSION_MAJOR)+1))))
+	$(eval NEW_VERSION := $(NEW_MAJOR).0.0)
+	sed -i 's/^version = "$(VERSION)"/version = "$(NEW_VERSION)"/' $(TOML_FILE)
+	$(ECHO) "$(GREEN)Version bumped: $(VERSION) → $(NEW_VERSION)$(RESET)"
