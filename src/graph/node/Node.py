@@ -1,6 +1,6 @@
 import math
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 
 class Node:
@@ -17,7 +17,7 @@ class Node:
         self.__pos: Tuple[int, int] = pos
 
         self.__weight: float = math.inf
-        self.__connected_node: list[Node] = []
+        self.__connected_node: List[Node] = []
 
         self.__color: Optional[str] = color
         self.__zone: str = zone
@@ -51,7 +51,7 @@ class Node:
         self.__weight = new_weight
 
     @property
-    def connected_nodes(self) -> list["Node"]:
+    def connected_nodes(self) -> List["Node"]:
         return self.__connected_node
 
     def add_connected_node(self, new_node: "Node") -> None:
