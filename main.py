@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 
-from src.utils.check_env.env_check import RunEnvironmentError, RunSecurity
+from src.utils.check_env.RunSecurity import RunEnvironmentError, RunSecurity
 from src.utils.logger import setup_logger
 
 TERMINAL: list[str] = ["gnome-terminal", "--"]
