@@ -28,6 +28,7 @@ class RunEnvironmentError(Exception):
 
 
 class RunSecurity:
+    """Checks the runtime environment for security and correct setup."""
 
     def __init__(self) -> None:
         self.__virtual_env: str | None = None

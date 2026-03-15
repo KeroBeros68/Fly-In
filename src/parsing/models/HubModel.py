@@ -6,6 +6,7 @@ from ..utils.Enum import HubTypeEnum, ZoneEnum
 
 
 class HubModel(BaseModel):
+    """Represents a single hub in the drone delivery network."""
     name: str = Field(
         description=(
             "Unique identifier of the hub (no dashes or spaces allowed)"

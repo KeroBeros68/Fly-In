@@ -10,6 +10,10 @@ from .ConnectionModel import ConnectionModel
 
 
 class MapModel(BaseModel):
+    """Represents a complete map with hubs and connections.
+
+    Validates that the map has correct, coherent hubs and connections.
+    """
     nb_drones: int = Field(
         ge=1,
         description="Total number of drones to route from start to end hub",

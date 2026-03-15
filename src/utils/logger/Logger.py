@@ -4,6 +4,14 @@ from logging.handlers import RotatingFileHandler
 
 
 def setup_logger(name: str) -> logging.Logger:
+    """Set up and configure a logger instance with file and console handlers.
+
+    Args:
+        name: The name of the logger to retrieve or create.
+
+    Returns:
+        The configured logger instance.
+    """
     logger = logging.getLogger(name)
 
     if logger.handlers:

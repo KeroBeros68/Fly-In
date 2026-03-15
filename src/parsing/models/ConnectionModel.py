@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class ConnectionModel(BaseModel):
+    """Represents a bidirectional connection between two hubs."""
     zone1: str = Field(
         description="Name of the first hub endpoint of the connection"
     )

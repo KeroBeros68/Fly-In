@@ -12,6 +12,12 @@ TERMINAL: list[str] = ["gnome-terminal", "--"]
 
 
 def main() -> None:
+    """
+    Main entry point for the Fly-In application.
+
+    Initializes the controller with the map path from the command
+    line arguments and starts the processing loop.
+    """
     controller = Controller(map_path=sys.argv[2], secure_env=RunSecurity())
     try:
         controller.process()
