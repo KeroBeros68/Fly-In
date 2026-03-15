@@ -1,11 +1,10 @@
 import logging
-from typing import NoReturn, Optional, Tuple
+from typing import NoReturn, Tuple
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
 from src.parsing.models import MapModel
 from src.simulation.drone import Drone
-from src.utils.check_env.env_check import RunEnvironmentError, RunSecurity
 
 
 class ControllerError(Exception):
@@ -41,17 +40,14 @@ class Controller:
         map_path (str): Path to the map to process.
         drone_list (list): List of initialized drones.
     """
-    def __init__(
-        self, map_path: str, secure_env: Optional[RunSecurity] = None
-    ) -> None:
+
+    def __init__(self, map_path: str) -> None:
         """
         Initializes the Controller.
 
         Args:
             map_path (str): The path to the map configuration file.
-            secure_env (RunSecurity, optional): Security check environment.
         """
-        self.__secure_env: Optional[RunSecurity] = secure_env
         self.logger = logging.getLogger("Fly-In")
 
         self.map_path: str = map_path
@@ -65,12 +61,6 @@ class Controller:
         the simulation. Validates the secure environment if provided.
         """
         self.logger.info("Programm starting")
-        if self.__secure_env:
-            try:
-                self.__secure_env.check_process()
-            except RunEnvironmentError as e:
-                self.logger.error(f"{e}")
-                self.exit_program()
 
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)

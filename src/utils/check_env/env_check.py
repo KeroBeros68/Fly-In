@@ -13,7 +13,7 @@ import site
 import sys
 import os
 import time
-from importlib import import_module, metadata
+from importlib import metadata
 
 
 class RunEnvironmentError(Exception):
@@ -164,14 +164,13 @@ class RunSecurity:
         for raw_name in module_list:
             package_name: str = re.split(r"[><=!;\s\[]", raw_name)[0].strip()
             try:
-                import_module(package_name)
                 meta = metadata.metadata(package_name)
-                print(f"\r    [OK] {meta['Name']} {meta['Version']} — loaded")
+                print(f"\r    [OK] {meta['Name']} {meta['Version']} - found")
                 lines_written += 1
-            except ModuleNotFoundError:
+            except metadata.PackageNotFoundError:
                 all_loaded = False
                 print(
-                    f"\r    [MISSING] '{package_name}' could not be imported. "
+                    f"\r    [MISSING] '{package_name}' could not be found. "
                     "Run 'uv sync' to install missing dependencies."
                 )
                 lines_written += 1

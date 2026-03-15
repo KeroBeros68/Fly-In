@@ -1,10 +1,10 @@
+import logging
 import os
 import subprocess
 import sys
 
 
-from src import Controller, ControllerError
-from src.utils.check_env.env_check import RunSecurity
+from src.utils.check_env.env_check import RunEnvironmentError, RunSecurity
 from src.utils.logger import setup_logger
 
 TERMINAL: list[str] = ["gnome-terminal", "--"]
@@ -18,9 +18,17 @@ def main() -> None:
     Initializes the controller with the map path from the command
     line arguments and starts the processing loop.
     """
-    controller = Controller(map_path=sys.argv[2], secure_env=RunSecurity())
+    logger = logging.getLogger("Fly-In")
+    secure_env = RunSecurity()
     try:
+        secure_env.check_process()
+        from src.Controller import Controller, ControllerError
+        controller = Controller(map_path=sys.argv[2])
         controller.process()
+    except RunEnvironmentError as e:
+        logger.error(f"{e}")
+        logger.info("Programm exit")
+        input("\n\nPress Enter to exit...")
     except ControllerError:
         pass
 
