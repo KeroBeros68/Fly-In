@@ -6,8 +6,8 @@ from src.graph.Graph import Graph
 from src.graph.algorithms.Dijkstra import Djikstra
 from src.graph.link import Link
 from src.graph.node import Node
-from src.view.ViewQT import ViewQT
-from PySide6 import QtWidgets
+from src.view.ViewApp import ViewApp
+
 from PySide6.QtCore import QTimer
 
 from src.parsing import MapParser
@@ -58,9 +58,6 @@ class Controller:
             map_path (str): The path to the map configuration file.
         """
         self.logger = logging.getLogger("Fly-In")
-        self.app = QtWidgets.QApplication([])
-        self.app_window: ViewQT = ViewQT()
-
         self.map_path: str = map_path
         self.drone_list: list[Drone] = []
         self.graph: Graph = Graph()
@@ -73,11 +70,10 @@ class Controller:
         the simulation. Validates the secure environment if provided.
         """
         self.logger.info("Programm starting")
-
-        self.app_window.setMinimumSize(800, 600)
-        self.app_window.setMaximumSize(1920, 1080)
-        self.app_window.resize(1920, 1080)
-        self.app_window.show()
+        try:
+            self.app = ViewApp()
+        except Exception as e:
+            self.logger.error(e)
 
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)
@@ -86,16 +82,14 @@ class Controller:
 
         QTimer.singleShot(2000, lambda: self.__continue_process(map_model))
 
-        self.app.exec()
+        sys.exit(self.app.app.exec())
 
     def __continue_process(self, map_model: MapModel) -> None:
         self.logger.info("Drawing graph...")
-        self.app_window.draw_graph(self.graph)
+        # self.app_window.draw_graph(self.graph)
         self.logger.info("Graph drawn successfully")
 
-        self.__init_simulation(
-            map_model.nb_drones, map_model.start_hub.pos
-        )
+        self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
         self.logger.info("Simulation prête")
         path, distance = Djikstra.dijkstra(self.graph)
         self.logger.info(f"le chemin est {path}")
@@ -192,5 +186,5 @@ class Controller:
             ControllerError: To break execution explicitly.
         """
         self.logger.info("Programm exit")
-        sys.exit(self.app.exec())
+        sys.exit(self.app.app.exec())
         raise ControllerError("Programm exit")

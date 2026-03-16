@@ -44,3 +44,48 @@ class Djikstra:
                     heapq.heappush(queue, (curr_weight + 1.0, wait_time, curr_node))
 
         return [], float('inf')
+
+
+def __continue_process(self, map_model: MapModel) -> None:
+    self.app_window.draw_graph(self.graph)
+    self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
+    
+    start_node = "start"
+    end_node = "goal" # ou selon ton parsing
+
+    for drone in self.drone_list:
+        path, dist = Djikstra.dijkstra(self.graph, start_node, end_node, 0, self)
+        if path:
+            self.reserve_path(path) # Marque les (noeud, tour) comme occupés
+            drone.set_itinerary(path) # Donne sa feuille de route au drone
+
+
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QWidget, QVBoxLayout, QPushButton, QLabel
+
+class MainView(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.stack = QStackedWidget()
+        self.setCentralWidget(self.stack)
+
+        # Création des pages
+        self.page_menu = self.create_menu_page()
+        self.page_simu = self.create_simu_page()
+
+        # Ajout au stack
+        self.stack.addWidget(self.page_menu) # Index 0
+        self.stack.addWidget(self.page_simu) # Index 1
+
+    def create_menu_page(self):
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        btn = QPushButton("Lancer la Simulation")
+        btn.clicked.connect(lambda: self.stack.setCurrentIndex(1)) # Change vers page 1
+        layout.addWidget(QLabel("MENU PRINCIPAL"))
+        layout.addWidget(btn)
+        return widget
+
+    def create_simu_page(self):
+        widget = QWidget()
+        # ... (ton code de vue avec QGraphicsView)
+        return widget
