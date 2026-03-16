@@ -4,7 +4,7 @@ from src.graph.link import Link
 from src.graph.node import Node
 
 
-class Graph():
+class Graph:
     """
     Represents a graph structure with nodes and links.
 
@@ -13,7 +13,7 @@ class Graph():
         _links (Dict[str, Link]): A dict mapping link names to Link objects.
     """
 
-    def __init_(self) -> None:
+    def __init__(self) -> None:
         """
         Initializes an empty graph.
         """

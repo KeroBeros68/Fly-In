@@ -195,7 +195,7 @@ class MapParser:
 
         try:
             return HubModel(
-                name=name,
+                name=name.strip(),
                 hub_type=hub_type,
                 pos=(x, y),
                 color=color,
@@ -280,8 +280,8 @@ class MapParser:
 
         try:
             return ConnectionModel(
-                zone1=parts[0],
-                zone2=parts[1],
+                zone1=parts[0].strip(),
+                zone2=parts[1].strip(),
                 max_link_capacity=int(max_link_capacity),
             )
         except ValidationError as e:

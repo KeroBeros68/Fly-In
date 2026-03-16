@@ -71,6 +71,8 @@ class Controller:
         self.__view()
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)
+
+        self.app_window.draw_graph(map_model)
         self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
         self.exit_program()
 
