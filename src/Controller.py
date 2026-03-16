@@ -1,5 +1,9 @@
 import logging
+import sys
 from typing import NoReturn, Tuple
+
+from src.view.ViewQT import ViewQT
+from PySide6 import QtWidgets
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
@@ -49,6 +53,8 @@ class Controller:
             map_path (str): The path to the map configuration file.
         """
         self.logger = logging.getLogger("Fly-In")
+        self.app = QtWidgets.QApplication([])
+        self.app_window: ViewQT = ViewQT()
 
         self.map_path: str = map_path
         self.drone_list: list[Drone] = []
@@ -62,6 +68,7 @@ class Controller:
         """
         self.logger.info("Programm starting")
 
+        self.__view()
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)
         self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
@@ -118,8 +125,10 @@ class Controller:
         for nb in range(nb_drone):
             self.drone_list.append(Drone(nb + 1, start_pos))
         self.logger.info("All drones initialized")
-        for d in self.drone_list:
-            print(d)
+
+    def __view(self) -> None:
+        self.app_window.resize(800, 600)
+        self.app_window.show()
 
     def exit_program(self) -> NoReturn:
         """
@@ -129,5 +138,5 @@ class Controller:
             ControllerError: To break execution explicitly.
         """
         self.logger.info("Programm exit")
-        input("\n\nPress Enter to exit...")
+        sys.exit(self.app.exec())
         raise ControllerError("Programm exit")
