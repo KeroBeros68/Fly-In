@@ -7,6 +7,7 @@ from src.graph.link import Link
 from src.graph.node import Node
 from src.view.ViewQT import ViewQT
 from PySide6 import QtWidgets
+from PySide6.QtGui import QIcon
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
@@ -72,6 +73,7 @@ class Controller:
         """
         self.logger.info("Programm starting")
 
+        self.app.setWindowIcon(QIcon("assets/drone_router_icon.png"))
         self.__view()
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)
