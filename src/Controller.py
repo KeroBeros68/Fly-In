@@ -9,7 +9,6 @@ from src.graph.node import Node
 from src.view.ViewQT import ViewQT
 from PySide6 import QtWidgets
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QIcon
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
@@ -75,7 +74,6 @@ class Controller:
         """
         self.logger.info("Programm starting")
 
-        self.app.setWindowIcon(QIcon("assets/drone_router_icon.png"))
         self.app_window.setMinimumSize(800, 600)
         self.app_window.setMaximumSize(1920, 1080)
         self.app_window.resize(1920, 1080)
@@ -88,11 +86,16 @@ class Controller:
 
         QTimer.singleShot(2000, lambda: self.__continue_process(map_model))
 
-        sys.exit(self.app.exec())
+        self.app.exec()
 
     def __continue_process(self, map_model: MapModel) -> None:
+        self.logger.info("Drawing graph...")
         self.app_window.draw_graph(self.graph)
-        self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
+        self.logger.info("Graph drawn successfully")
+
+        self.__init_simulation(
+            map_model.nb_drones, map_model.start_hub.pos
+        )
         self.logger.info("Simulation prête")
         path, distance = Djikstra.dijkstra(self.graph)
         self.logger.info(f"le chemin est {path}")
