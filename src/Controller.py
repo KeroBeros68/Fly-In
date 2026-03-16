@@ -2,6 +2,9 @@ import logging
 import sys
 from typing import NoReturn, Tuple
 
+from src.graph.Graph import Graph
+from src.graph.link import Link
+from src.graph.node import Node
 from src.view.ViewQT import ViewQT
 from PySide6 import QtWidgets
 
@@ -58,6 +61,7 @@ class Controller:
 
         self.map_path: str = map_path
         self.drone_list: list[Drone] = []
+        self.graph: Graph = Graph()
 
     def process(self) -> None:
         """
@@ -72,7 +76,9 @@ class Controller:
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)
 
-        self.app_window.draw_graph(map_model)
+        self.__init_graph(map_model)
+
+        self.app_window.draw_graph(self.graph)
         self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
         self.exit_program()
 
@@ -113,6 +119,27 @@ class Controller:
             self.logger.error(f"{e}")
             self.exit_program()
         return config
+
+    def __init_graph(self, map_model: MapModel):
+        hubs = map_model.hubs.copy()
+        hubs.append(map_model.end_hub)
+        hubs.append(map_model.start_hub)
+        for hub in hubs:
+            node: Node = Node(
+                hub.name,
+                hub.hub_type.value,
+                hub.pos,
+                hub.zone.value,
+                hub.color,
+            )
+            self.graph.add_node(node)
+
+        for connection in map_model.connections:
+            link: Link = Link(
+                f"{connection.zone1}-{connection.zone2}",
+                connection.max_link_capacity
+            )
+            self.graph.add_link(link)
 
     def __init_simulation(
         self, nb_drone: int, start_pos: Tuple[int, int]
