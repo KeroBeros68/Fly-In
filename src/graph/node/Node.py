@@ -40,6 +40,7 @@ class Node:
 
         self.__weight: float = math.inf
         self.__connected_node: List[Node] = []
+        self.__previous_node: str = ""
 
         self.__color: Optional[str] = color
         self.__zone: str = zone
@@ -123,6 +124,14 @@ class Node:
             List[Node]: Connected node instances.
         """
         return self.__connected_node
+
+    @property
+    def previous_node(self) -> str:
+        return self.__previous_node
+
+    @previous_node.setter
+    def previous_node(self, node: "Node") -> None:
+        self.__previous_node = node.name
 
     def add_connected_node(self, new_node: "Node") -> None:
         """

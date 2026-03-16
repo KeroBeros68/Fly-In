@@ -3,6 +3,7 @@ import sys
 from typing import NoReturn, Tuple
 
 from src.graph.Graph import Graph
+from src.graph.algorithms.Dijkstra import Djikstra
 from src.graph.link import Link
 from src.graph.node import Node
 from src.view.ViewQT import ViewQT
@@ -93,6 +94,9 @@ class Controller:
         self.app_window.draw_graph(self.graph)
         self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
         self.logger.info("Simulation prête")
+        path, distance = Djikstra.dijkstra(self.graph)
+        self.logger.info(f"le chemin est {path}")
+        self.logger.info(distance)
         self.logger.info("Programm exit")
 
     def __read_file(self) -> str:

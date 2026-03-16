@@ -1,0 +1,46 @@
+class Djikstra:
+    @staticmethod
+    def dijkstra(graph: Graph, start_node: str, end_node: str, start_time: int, controller):
+        # distances[(nom_noeud, tour)] = poids
+        distances = {(start_node, start_time): 0.0}
+        previous = {}
+        
+        # Priority Queue: (poids_cumulé, tour_actuel, nom_noeud)
+        queue = [(0.0, start_time, start_node)]
+        
+        while queue:
+            curr_weight, curr_time, curr_node = heapq.heappop(queue)
+
+            if curr_node == end_node:
+                return Djikstra.reconstruct_path(previous, curr_node, curr_time, start_node, start_time), curr_weight
+
+            node_obj = graph.nodes[curr_node]
+            
+            # --- OPTION 1 : Se déplacer vers un voisin ---
+            for neighbor in node_obj.connected_nodes:
+                # Coût en tours selon le type de zone [cite: 153, 155, 156]
+                travel_cost = 2 if neighbor.zone == "restricted" else 1
+                arrival_time = curr_time + travel_cost
+                
+                # Vérification des capacités via le controller [cite: 170, 180, 182]
+                if controller.has_capacity(neighbor, arrival_time, from_node=node_obj):
+                    
+                    # Calcul du poids pour la Priority Queue (le "coût" de l'arête)
+                    weight = 1.0 if neighbor.zone != "priority" else 0.9
+                    new_weight = curr_weight + weight
+                    
+                    if new_weight < distances.get((neighbor.name, arrival_time), float('inf')):
+                        distances[(neighbor.name, arrival_time)] = new_weight
+                        previous[(neighbor.name, arrival_time)] = (curr_node, curr_time)
+                        heapq.heappush(queue, (new_weight, arrival_time, neighbor.name))
+
+            # --- OPTION 2 : Attendre sur place (Stay in place) [cite: 188] ---
+            # Un drone peut attendre si la suite est bloquée
+            wait_time = curr_time + 1
+            if controller.has_capacity(node_obj, wait_time):
+                if curr_weight + 1.0 < distances.get((curr_node, wait_time), float('inf')):
+                    distances[(curr_node, wait_time)] = curr_weight + 1.0
+                    previous[(curr_node, wait_time)] = (curr_node, curr_time)
+                    heapq.heappush(queue, (curr_weight + 1.0, wait_time, curr_node))
+
+        return [], float('inf')

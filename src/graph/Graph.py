@@ -40,6 +40,8 @@ class Graph:
     def add_node(self, node: Node) -> None:
         if node in self.__nodes:
             raise GraphNodeError("Node already in Graph")
+        if node.type == "start_hub":
+            node.weight = 0
         self.__nodes[node.name] = node
 
     def add_link(self, link: Link) -> None:
