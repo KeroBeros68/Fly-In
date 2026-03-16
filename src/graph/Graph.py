@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 
 from src.graph.link import Link
 from src.graph.node import Node
@@ -17,11 +17,20 @@ class Graph:
         """
         Initializes an empty graph.
         """
-        self.__nodes: List[Node] = []
+        self.__name: str = ""
+        self.__nodes: Dict[str, Node] = {}
         self.__links: Dict[str, Link] = {}
 
     @property
-    def nodes(self) -> list[Node]:
+    def name(self) -> str:
+        return self.__name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        self.__name = name
+
+    @property
+    def nodes(self) -> Dict[str, Node]:
         return self.__nodes
 
     @property
@@ -31,12 +40,18 @@ class Graph:
     def add_node(self, node: Node) -> None:
         if node in self.__nodes:
             raise GraphNodeError("Node already in Graph")
-        self.__nodes.append(node)
+        self.__nodes[node.name] = node
 
     def add_link(self, link: Link) -> None:
         if link.name in self.__links:
             raise GraphLinkError("Link already in Graph")
         self.__links[link.name] = link
+
+    def __repr__(self) -> str:
+        res: str = ""
+        for node in self.nodes.values():
+            res += f"\n{repr(node)}\n"
+        return res
 
 
 class GraphError(Exception):

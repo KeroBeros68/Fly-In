@@ -7,6 +7,7 @@ from src.graph.link import Link
 from src.graph.node import Node
 from src.view.ViewQT import ViewQT
 from PySide6 import QtWidgets
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 
 from src.parsing import MapParser
@@ -74,15 +75,25 @@ class Controller:
         self.logger.info("Programm starting")
 
         self.app.setWindowIcon(QIcon("assets/drone_router_icon.png"))
-        self.__view()
+        self.app_window.setMinimumSize(800, 600)
+        self.app_window.setMaximumSize(1920, 1080)
+        self.app_window.resize(1920, 1080)
+        self.app_window.show()
+
         content: str = self.__read_file()
         map_model: MapModel = self.__parse_content(content)
 
         self.__init_graph(map_model)
 
+        QTimer.singleShot(2000, lambda: self.__continue_process(map_model))
+
+        sys.exit(self.app.exec())
+
+    def __continue_process(self, map_model: MapModel) -> None:
         self.app_window.draw_graph(self.graph)
         self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
-        self.exit_program()
+        self.logger.info("Simulation prête")
+        self.logger.info("Programm exit")
 
     def __read_file(self) -> str:
         """
@@ -123,6 +134,7 @@ class Controller:
         return config
 
     def __init_graph(self, map_model: MapModel):
+        self.graph.name = self.map_path
         hubs = map_model.hubs.copy()
         hubs.append(map_model.end_hub)
         hubs.append(map_model.start_hub)
@@ -139,9 +151,17 @@ class Controller:
         for connection in map_model.connections:
             link: Link = Link(
                 f"{connection.zone1}-{connection.zone2}",
-                connection.max_link_capacity
+                connection.max_link_capacity,
+            )
+            self.graph.nodes[connection.zone1].add_connected_node(
+                self.graph.nodes[connection.zone2]
+            )
+            self.graph.nodes[connection.zone2].add_connected_node(
+                self.graph.nodes[connection.zone1]
             )
             self.graph.add_link(link)
+
+        self.logger.info(repr(self.graph))
 
     def __init_simulation(
         self, nb_drone: int, start_pos: Tuple[int, int]
@@ -156,10 +176,6 @@ class Controller:
         for nb in range(nb_drone):
             self.drone_list.append(Drone(nb + 1, start_pos))
         self.logger.info("All drones initialized")
-
-    def __view(self) -> None:
-        self.app_window.resize(800, 600)
-        self.app_window.show()
 
     def exit_program(self) -> NoReturn:
         """

@@ -140,6 +140,15 @@ class Node:
             )
         self.__connected_node.append(new_node)
 
+    def __repr__(self) -> str:
+        res: str = (
+            f"{self.__name} {self.__type} {self.__pos} {self.__weight}"
+            f" {self.__color} {self.__zone}"
+        )
+        for node in self.connected_nodes:
+            res += f"\n{node.name}"
+        return res
+
 
 class NodeError(Exception):
     """
