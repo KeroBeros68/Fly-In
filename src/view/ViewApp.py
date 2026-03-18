@@ -2,13 +2,19 @@ import os
 
 from PySide6 import QtWidgets
 from PySide6.QtGui import QFontDatabase
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.Controller import Controller
 
 from src.view.ViewQT import ViewQT
 
 
 class ViewApp:
-    def __init__(self) -> None:
+    def __init__(self, controller: 'Controller') -> None:
         self.app = QtWidgets.QApplication([])
+
+        self.controller = controller
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         font_path = os.path.join(
@@ -52,7 +58,7 @@ class ViewApp:
         """
         )
 
-        self.app_window = ViewQT()
+        self.app_window = ViewQT(self.controller)
         self.app_window.setMinimumSize(800, 600)
         self.app_window.setMaximumSize(1920, 1080)
         self.app_window.resize(1920, 1080)

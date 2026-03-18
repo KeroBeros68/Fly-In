@@ -52,10 +52,7 @@ def main() -> None:
     try:
         from src.Controller import Controller, ControllerError
 
-        args_without_gui = [a for a in sys.argv if a != "--gui"]
-        map_path = args_without_gui[1] if len(args_without_gui) > 1 else ""
-
-        controller = Controller(map_path=map_path)
+        controller = Controller()
         controller.process()
 
     except ControllerError:

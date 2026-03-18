@@ -1,28 +1,33 @@
+from typing import TYPE_CHECKING
+
 from PySide6.QtWidgets import (
-    QLabel,
     QMainWindow,
     QGraphicsScene,
     QGraphicsView,
-    QPushButton,
+    QMessageBox,
     QStackedWidget,
     QWidget,
     QVBoxLayout,
-    QScrollArea,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QPen, QBrush, QColor, QIcon, QPixmap
+
+from PySide6.QtGui import QIcon
 import os
 
-from src.graph.Graph import Graph
-from src.graph.node.Node import Node
+if TYPE_CHECKING:
+    from src.Controller import Controller
 from src.view.pages.MenuPage import MenuPage
 
 
 class ViewQT(QMainWindow):
 
-    def __init__(self) -> None:
+    def __init__(self, controller: 'Controller') -> None:
         super().__init__()
 
+        self.controller = controller
+
+        self.controller.file_error.connect(
+            lambda msg: QMessageBox.critical(self, "Erreur", msg)
+        )
         self.setWindowTitle("Fly In")
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +41,8 @@ class ViewQT(QMainWindow):
 
         # --- PAGE 1 : MENU ---
         self.menu = MenuPage()
-        self.page_menu = self.menu.create_page(self.stack)
+        self.menu_page = self.menu.create_page(self.stack)
+        self.menu.file_selected.connect(self.controller.load_file)
 
         # --- PAGE 2 : SIMULATION ---
         self.page_simu = QWidget()
@@ -48,7 +54,7 @@ class ViewQT(QMainWindow):
         layout_simu.addWidget(self.view)
 
         # Ajout des pages au stack
-        self.stack.addWidget(self.page_menu)  # Index 0
+        self.stack.addWidget(self.menu_page)  # Index 0
         self.stack.addWidget(self.page_simu)  # Index 1
 
     def go_to_simu(self):
