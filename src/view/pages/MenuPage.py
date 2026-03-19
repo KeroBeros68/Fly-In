@@ -7,7 +7,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QPushButton,
     QStackedWidget,
     QWidget,
     QVBoxLayout,
@@ -21,6 +20,8 @@ from PySide6.QtGui import (
     QFontDatabase,
 )
 import os
+
+from src.view.components.Button import Button
 
 
 logger = logging.getLogger("Fly-In")
@@ -123,8 +124,8 @@ class MenuPage(QWidget):
         )
         file_input.setFixedWidth(500)
         file_input.setPlaceholderText("Select a flight file (.txt)")
-        button_file = self.__new_button(
-            "Browse", 150, 50, "#00FFCC", "#121212"
+        button_file = Button(
+            "Browse", 150, 50, "#00FFCC", "#121212", self.font_family
         )
 
         button_file.clicked.connect(lambda: self.open_file(widget, file_input))
@@ -137,17 +138,23 @@ class MenuPage(QWidget):
         file_layout.addWidget(file_input)
         file_layout.addWidget(button_file)
 
-        btn_start = self.__new_button(
-            "LANCER LA SIMULATION", 300, 50, "#00FFCC", "#121212"
+        btn_start = Button(
+            "LANCER LA SIMULATION",
+            300,
+            50,
+            "#00FFCC",
+            "#121212",
+            self.font_family,
         )
         btn_start.clicked.connect(lambda: stack.setCurrentIndex(1))
+        logger.warning(stack.currentIndex())
 
         def __open_website():
             url = QUrl("https://github.com/keroberos68")
             QDesktopServices.openUrl(url)
 
-        btn_git = self.__new_button(
-            "VERS MON GIT", 300, 50, "#f9c414", "#121212"
+        btn_git = Button(
+            "VERS MON GIT", 300, 50, "#f9c414", "#121212", self.font_family
         )
         btn_git.clicked.connect(__open_website)
 
@@ -155,7 +162,9 @@ class MenuPage(QWidget):
             logger.info("Exit program")
             widget.window().close()
 
-        btn_exit = self.__new_button("EXIT", 300, 50, "#be123c", "#121212")
+        btn_exit = Button(
+            "EXIT", 300, 50, "#be123c", "#121212", self.font_family
+        )
         btn_exit.clicked.connect(__exit_btn)
 
         def __version_read() -> str:
@@ -203,31 +212,3 @@ class MenuPage(QWidget):
         )
         if file_path:
             file_input.setText(file_path)
-
-    def __new_button(
-        self, name: str, width: int, height: int, color: str, hover_color: str
-    ) -> QPushButton:
-        btn = QPushButton(name)
-        btn.setFont(QFont(self.font_family, 12))
-        btn.setFixedWidth(width)
-        btn.setFixedHeight(height)
-        btn.setCursor(Qt.CursorShape.PointingHandCursor)
-
-        # Style pour coller au thème
-        btn.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: transparent;
-                border: 2px solid {color};
-                color: {color};
-                border-radius: 10px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background-color: {color};
-                color: {hover_color};
-            }}
-            """
-        )
-
-        return btn

@@ -1,3 +1,4 @@
+import logging
 from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import (
@@ -15,7 +16,10 @@ import os
 
 if TYPE_CHECKING:
     from src.Controller import Controller
+from src.view.pages.SimPage import SimPage
 from src.view.pages.MenuPage import MenuPage
+
+logger = logging.getLogger("Fly-In")
 
 
 class ViewQT(QMainWindow):
@@ -25,9 +29,6 @@ class ViewQT(QMainWindow):
 
         self.controller = controller
 
-        self.controller.file_error.connect(
-            lambda msg: QMessageBox.critical(self, "Erreur", msg)
-        )
         self.setWindowTitle("Fly In")
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,22 +44,22 @@ class ViewQT(QMainWindow):
         self.menu = MenuPage()
         self.menu_page = self.menu.create_page(self.stack)
         self.menu.file_selected.connect(self.controller.load_file)
+        self.controller.file_error.connect(
+            lambda msg: QMessageBox.critical(self, "Erreur", msg)
+        )
 
         # --- PAGE 2 : SIMULATION ---
-        self.page_simu = QWidget()
-        layout_simu = QVBoxLayout(self.page_simu)
+        self.sim = SimPage()
+        self.sim_page = self.sim.create_page(self.stack)
 
         # On ajoute la vue graphique ICI
-        self.scene = QGraphicsScene()
-        self.view = QGraphicsView(self.scene)
-        layout_simu.addWidget(self.view)
+        # self.scene = QGraphicsScene()
+        # self.view = QGraphicsView(self.scene)
+        # layout_simu.addWidget(self.view)
 
         # Ajout des pages au stack
         self.stack.addWidget(self.menu_page)  # Index 0
-        self.stack.addWidget(self.page_simu)  # Index 1
-
-    def go_to_simu(self):
-        self.stack.setCurrentIndex(1)
+        self.stack.addWidget(self.sim_page)  # Index 1
 
     # def draw_graph(self, graph: Graph) -> None:
     #     """Replace splash with the graph view."""
