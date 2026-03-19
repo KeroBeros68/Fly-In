@@ -66,7 +66,38 @@ class MenuPage(QWidget):
             families = QFontDatabase.applicationFontFamilies(font_id)
             if families:
                 return families[0]
-        return "Arial"  # Fallback si le fichier est manquant
+        return "Arial"
+
+    def _get_disabled_button_style(self):
+        return """
+            QPushButton {
+                background-color: #333333;
+                color: #777777;
+                border: 2px solid #555555;
+                border-radius: 10px;
+            }
+        """
+
+    def _get_enabled_button_style(self):
+        return """
+            QPushButton {
+                background-color: #121212;
+                color: #00FFCC;
+                border: 2px solid #00FFCC;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #00FFCC;
+                color: #121212;
+            }
+        """
+
+    def set_start_enabled(self, enabled: bool):
+        self.btn_start.setEnabled(enabled)
+        if enabled:
+            self.btn_start.setStyleSheet(self._get_enabled_button_style())
+        else:
+            self.btn_start.setStyleSheet(self._get_disabled_button_style())
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
         widget = QWidget()
@@ -100,7 +131,6 @@ class MenuPage(QWidget):
         self.anim.setLoopCount(-1)
         self.anim.start()
 
-        # 2. LOGO
         label_logo = QLabel()
         current_dir = os.path.dirname(os.path.abspath(__file__))
         icon_path = os.path.join(
@@ -138,23 +168,25 @@ class MenuPage(QWidget):
         file_layout.addWidget(file_input)
         file_layout.addWidget(button_file)
 
-        btn_start = Button(
-            "LANCER LA SIMULATION",
+        self.btn_start = Button(
+            "LAUNCH SIMULATION",
             300,
             50,
             "#00FFCC",
             "#121212",
             self.font_family,
         )
-        btn_start.clicked.connect(lambda: stack.setCurrentIndex(1))
-        logger.warning(stack.currentIndex())
+        self.btn_start.setEnabled(False)
+        self.btn_start.setStyleSheet(self._get_disabled_button_style())
+
+        self.btn_start.clicked.connect(lambda: stack.setCurrentIndex(1))
 
         def __open_website():
             url = QUrl("https://github.com/keroberos68")
             QDesktopServices.openUrl(url)
 
         btn_git = Button(
-            "VERS MON GIT", 300, 50, "#f9c414", "#121212", self.font_family
+            "TO GITHUB", 300, 50, "#f9c414", "#121212", self.font_family
         )
         btn_git.clicked.connect(__open_website)
 
@@ -182,14 +214,15 @@ class MenuPage(QWidget):
             "font-weight: bold; color: #00FFCC; font-size: 16px"
         )
 
-        # Organisation
         layout.addStretch()
         layout.addWidget(title)
         layout.addWidget(label_logo)
         layout.addSpacing(50)
         layout.addLayout(file_layout)
         layout.addSpacing(10)
-        layout.addWidget(btn_start, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(
+            self.btn_start, alignment=Qt.AlignmentFlag.AlignCenter
+        )
         layout.addSpacing(10)
         layout.addWidget(btn_git, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(10)
@@ -209,6 +242,7 @@ class MenuPage(QWidget):
             "Select flight file",
             "",
             "Flight Files (*.txt);;All Files (*)",
+            options=QFileDialog.Option.DontUseNativeDialog,
         )
         if file_path:
             file_input.setText(file_path)

@@ -51,6 +51,7 @@ class Controller(QObject):
     """
 
     file_error = Signal(str)
+    file_loaded = Signal(bool)
 
     def __init__(self) -> None:
         """
@@ -61,6 +62,7 @@ class Controller(QObject):
         """
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
+        self.map_name: str = ""
         self.drone_list: list[Drone] = []
         self.graph: Graph = Graph()
 
@@ -77,41 +79,29 @@ class Controller(QObject):
         except Exception as e:
             raise e
 
-        # content: str = self.__read_file()
-        # map_model: MapModel = self.__parse_content(content)
-
-        # self.__init_graph(map_model)
-
-        # QTimer.singleShot(2000, lambda: self.__continue_process(map_model))
-
         sys.exit(self.app.app.exec())
-
-    # def __continue_process(self, map_model: MapModel) -> None:
-    #     self.logger.info("Drawing graph...")
-    #     # self.app_window.draw_graph(self.graph)
-    #     self.logger.info("Graph drawn successfully")
-
-    #     self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
-    #     self.logger.info("Simulation prête")
-    #     path, distance = Djikstra.dijkstra(self.graph)
-    #     self.logger.info(f"le chemin est {path}")
-    #     self.logger.info(distance)
-    #     self.logger.info("Programm exit")
 
     def load_file(self, path: str):
         if path == "":
+            self.file_loaded.emit(False)
             return
         self.logger.info(f"File received: {path}")
 
-        content = self.__read_file(path)
-        if content != "":
-            map_model = self.__parse_content(content)
+        try:
+            content = self.__read_file(path)
+            if content != "":
+                map_model = self.__parse_content(content)
 
-        if map_model:
-            self.__init_graph(map_model)
-            self.logger.info("File successfully loaded")
-        else:
-            self.logger.info("File not loaded")
+            if map_model:
+                self.__init_graph(map_model)
+                self.logger.info("File successfully loaded")
+                self.file_loaded.emit(True)
+            else:
+                self.logger.info("File not loaded")
+                self.file_loaded.emit(False)
+        except MapError as e:
+            self.file_loaded.emit(False)
+            self.logger.error(f"Error loading file: {e}")
 
     def __read_file(self, path: str) -> str:
         """
@@ -124,6 +114,7 @@ class Controller(QObject):
         try:
             with open(path) as f:
                 content: str = f.read()
+            self.map_name = path.split("/")[::-1][0].split(".")[0]
             return content
         except (FileNotFoundError, PermissionError) as e:
             self.logger.error(f"File: {e}")
@@ -151,7 +142,7 @@ class Controller(QObject):
             return None
 
     def __init_graph(self, map_model: MapModel):
-        # self.graph.name = self.map_path
+        self.graph.name = self.map_name
         hubs = map_model.hubs.copy()
         hubs.append(map_model.end_hub)
         hubs.append(map_model.start_hub)
