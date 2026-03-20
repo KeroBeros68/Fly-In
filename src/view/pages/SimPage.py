@@ -1,7 +1,6 @@
 import logging
 
 from PySide6.QtWidgets import (
-    QGraphicsDropShadowEffect,
     QGraphicsScene,
     QGraphicsView,
     QHBoxLayout,
@@ -11,17 +10,17 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
 )
-from PySide6.QtCore import QPropertyAnimation, Qt
+from PySide6.QtCore import Qt
 from PySide6.QtGui import (
     QBrush,
     QColor,
-    QFont,
     QPen,
 )
 
 from src.graph.Graph import Graph
 from src.graph.node import Node
 from src.view.components.Button import Button
+from src.view.components.Title import Title
 from src.view.pages.Page import Page
 
 logger = logging.getLogger("Fly-In")
@@ -54,40 +53,14 @@ class SimPage(Page):
         )
         btn_back.clicked.connect(lambda: stack.setCurrentIndex(0))
 
-        title_font = QFont(self.font_family, 32, QFont.Weight.Bold)
-
         graph_name = (
             self.graph.name if self.graph is not None else "Simulation"
         )
-        title = QLabel(graph_name)
-        self.title_label = title
-        title.setFont(title_font)
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        title.setStyleSheet(
-            """
-            color: #00FFCC;
-            margin-bottom: 20px;
-        """
-        )
-
-        self.glow = QGraphicsDropShadowEffect()
-        self.glow.setColor(QColor("#00FFCC"))
-        self.glow.setOffset(0, 0)
-        self.glow.setBlurRadius(20)
-
-        title.setGraphicsEffect(self.glow)
-
-        self.anim = QPropertyAnimation(self.glow, b"blurRadius")
-        self.anim.setStartValue(40)
-        self.anim.setEndValue(90)
-        self.anim.setDuration(3200)
-        self.anim.setLoopCount(-1)
-        self.anim.start()
+        self.title_label = Title(graph_name, self.font_family)
 
         header_layout.addWidget(btn_back)
         header_layout.addStretch()
-        header_layout.addWidget(title)
+        header_layout.addWidget(self.title_label)
         header_layout.addStretch()
 
         header_layout.addSpacing(100)

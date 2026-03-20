@@ -9,11 +9,11 @@ from PySide6.QtGui import (
 
 
 class Page(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.font_family = self._load_fonts()
 
-    def _load_fonts(self):
+    def _load_fonts(self) -> str:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         font_path = os.path.join(
             current_dir, "..", "assets", "fonts", "Orbitron-Bold.ttf"

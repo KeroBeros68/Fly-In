@@ -3,7 +3,6 @@ import tomllib
 
 from PySide6.QtWidgets import (
     QFileDialog,
-    QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -11,16 +10,15 @@ from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
 )
-from PySide6.QtCore import QPropertyAnimation, QUrl, Qt, Signal
+from PySide6.QtCore import QUrl, Qt, Signal
 from PySide6.QtGui import (
-    QColor,
     QDesktopServices,
-    QFont,
     QPixmap,
 )
 import os
 
 from src.view.components.Button import Button
+from src.view.components.Title import Title
 from src.view.pages.Page import Page
 
 
@@ -90,32 +88,7 @@ class MenuPage(Page):
         layout = QVBoxLayout(widget)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        title_font = QFont(self.font_family, 32, QFont.Weight.Bold)
-
-        title = QLabel("FLY-IN SIMULATOR")
-        title.setFont(title_font)
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        title.setStyleSheet(
-            """
-            color: #00FFCC;
-            margin-bottom: 20px;
-        """
-        )
-
-        self.glow = QGraphicsDropShadowEffect()
-        self.glow.setColor(QColor("#00FFCC"))
-        self.glow.setOffset(0, 0)
-        self.glow.setBlurRadius(20)
-
-        title.setGraphicsEffect(self.glow)
-
-        self.anim = QPropertyAnimation(self.glow, b"blurRadius")
-        self.anim.setStartValue(40)
-        self.anim.setEndValue(90)
-        self.anim.setDuration(3200)
-        self.anim.setLoopCount(-1)
-        self.anim.start()
+        title = Title("FLY-IN SIMULATOR", self.font_family)
 
         label_logo = QLabel()
         current_dir = os.path.dirname(os.path.abspath(__file__))
