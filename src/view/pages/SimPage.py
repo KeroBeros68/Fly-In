@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
     QGraphicsView,
     QHBoxLayout,
     QLabel,
-    QScrollArea,
     QStackedWidget,
+    QTextEdit,
     QWidget,
     QVBoxLayout,
 )
@@ -47,7 +47,6 @@ class SimPage(Page):
         main_layout.setContentsMargins(10, 10, 10, 10)
 
         header_layout = QHBoxLayout()
-
         btn_back = Button(
             "<--", 50, 50, "#be123c", "#121212", self.font_family
         )
@@ -62,18 +61,71 @@ class SimPage(Page):
         header_layout.addStretch()
         header_layout.addWidget(self.title_label)
         header_layout.addStretch()
-
-        header_layout.addSpacing(100)
+        header_layout.addSpacing(50)
+        main_layout.addLayout(header_layout)
 
         self.scene = QGraphicsScene()
         view = QGraphicsView(self.scene)
+        view.setStyleSheet(
+            "background-color: #121212; border: 1px solid #00FFCC;"
+        )
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(view)
+        overlay_layout = QVBoxLayout(view)
+        overlay_layout.setContentsMargins(
+            0, 0, 0, 0
+        )
 
-        main_layout.addLayout(header_layout)
-        main_layout.addWidget(scroll_area)
+        log_container = QWidget()
+        log_container_layout = QVBoxLayout(log_container)
+        log_container_layout.setContentsMargins(5, 5, 5, 5)
+        log_container_layout.addStretch()
+
+        self.log_console = QTextEdit()
+        self.log_console.setReadOnly(True)
+        self.log_console.setFixedHeight(280)
+
+        self.log_console.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: transparent;
+                color: #00FFCC;
+                border: none;
+                font-family: 'Consolas';
+            }
+        """
+        )
+
+        self.log_console.document().contentsChanged.connect(
+            self._scroll_log_to_bottom
+        )
+
+        log_container_layout.addWidget(self.log_console)
+
+        log_container.setStyleSheet(
+            """
+            QWidget {
+                background-color: transparent;
+                border: none
+            }
+        """
+        )
+
+        log_container.setFixedHeight(300)
+        log_container.setContentsMargins(10, 10, 10, 10)
+
+        overlay_layout.addStretch()
+        overlay_layout.addWidget(
+            log_container, alignment=Qt.AlignmentFlag.AlignBottom
+        )
+        overlay_layout.setContentsMargins(20, 20, 20, 20)
+
+        main_layout.addWidget(view)
+
+        for _ in range(6):
+            self.log_console.append("\n")
+        self.log_console.append(
+            "Fly-In system initialized... Ready for takeoff."
+        )
         return widget
 
     def draw_graph(self, graph: Graph) -> None:
@@ -88,10 +140,8 @@ class SimPage(Page):
         node_size: int = 40
         offset: int = node_size // 2
 
-        #     # Create a dictionary to quickly find hub positions
         node_positions = {node.name: node.pos for node in graph.nodes.values()}
 
-        #     # Draw connections first so they appear under hubs
         for link in graph.links.values():
             names = link.name.split("-")
             if (
@@ -116,7 +166,6 @@ class SimPage(Page):
             x = orig_x * scale
             y = orig_y * scale
 
-            #         # Create a circle centered on the point
             node_color = (
                 node.color if hasattr(node, "color") and node.color else "cyan"
             )
@@ -129,12 +178,10 @@ class SimPage(Page):
                 QBrush(QColor(node_color)),
             )
 
-            #         # Add hub name above
             text = scene.addText(node.name)
             text.setDefaultTextColor("white")
             text.setPos(x - offset, y - offset - 25)
 
-        #     # Draw hubs
         for node in graph.nodes.values():
             __draw_hub(node)
 
@@ -142,4 +189,13 @@ class SimPage(Page):
 
         padding = 120
 
-        scene.setSceneRect(rect.adjusted(-padding, -padding, padding, padding))
+        scene.setSceneRect(rect.adjusted(-padding, 0, padding, padding))
+
+    def log_move(self, tour, texte):
+        self.log_console.append(
+            f"<b style='color:white;'>[TOUR {tour}]</b> : {texte}"
+        )
+
+    def _scroll_log_to_bottom(self):
+        sb = self.log_console.verticalScrollBar()
+        sb.setValue(sb.maximum())
