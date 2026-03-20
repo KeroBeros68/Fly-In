@@ -46,6 +46,7 @@ class ViewQT(QMainWindow):
 
         self.sim = SimPage()
         self.sim_page = self.sim.create_page(self.stack)
+        self.controller.load_graph.connect(self.sim._load_graph)
 
         self.stack.addWidget(self.menu_page)  # Index 0
         self.stack.addWidget(self.sim_page)  # Index 1

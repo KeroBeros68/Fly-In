@@ -2,20 +2,27 @@ import logging
 
 from PySide6.QtWidgets import (
     QGraphicsDropShadowEffect,
+    QGraphicsScene,
+    QGraphicsView,
     QHBoxLayout,
     QLabel,
+    QScrollArea,
     QStackedWidget,
     QWidget,
     QVBoxLayout,
 )
 from PySide6.QtCore import QPropertyAnimation, Qt
 from PySide6.QtGui import (
+    QBrush,
     QColor,
     QFont,
     QFontDatabase,
+    QPen,
 )
 import os
 
+from src.graph.Graph import Graph
+from src.graph.node import Node
 from src.view.components.Button import Button
 
 logger = logging.getLogger("Fly-In")
@@ -25,6 +32,9 @@ class SimPage(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self.font_family = self._load_fonts()
+        self.graph: Graph | None = None
+        self.title_label: QLabel | None = None
+        self.scene: QGraphicsScene | None = None
 
     def _load_fonts(self):
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -37,7 +47,14 @@ class SimPage(QWidget):
             families = QFontDatabase.applicationFontFamilies(font_id)
             if families:
                 return families[0]
-        return "Arial"  # Fallback si le fichier est manquant
+        return "Arial"
+
+    def _load_graph(self, graph: Graph):
+        self.graph = graph
+        if self.title_label is not None:
+            self.title_label.setText(self.graph.name)
+        if self.scene is not None:
+            self.draw_graph(self.graph)
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
         widget = QWidget()
@@ -53,7 +70,11 @@ class SimPage(QWidget):
 
         title_font = QFont(self.font_family, 32, QFont.Weight.Bold)
 
-        title = QLabel("MAP NAME")
+        graph_name = (
+            self.graph.name if self.graph is not None else "Simulation"
+        )
+        title = QLabel(graph_name)
+        self.title_label = title
         title.setFont(title_font)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -85,102 +106,81 @@ class SimPage(QWidget):
 
         header_layout.addSpacing(100)
 
+        self.scene = QGraphicsScene()
+        view = QGraphicsView(self.scene)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(view)
+
         main_layout.addLayout(header_layout)
-
-        main_layout.addStretch()
-
+        main_layout.addWidget(scroll_area)
         return widget
 
-    # def draw_graph(self, graph: Graph) -> None:
-    #     """Replace splash with the graph view."""
-    #     # Set the container (with title and graph) as central widget
-    #     # ---- Scene graphique ----
-    #     self.scene = QGraphicsScene()
-    #     self.view = QGraphicsView(self.scene)
-    #     self.scene.setBackgroundBrush(QColor("#0d1117"))
+    def draw_graph(self, graph: Graph) -> None:
+        if self.scene is None:
+            return
 
-    #     # ---- Titre ----
-    #     self.title = QLabel("Fly In - Drone Router")
-    #     self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    #     self.title.setStyleSheet("font-size: 22px; font-weight: bold;")
+        assert self.scene is not None
+        scene: QGraphicsScene = self.scene
+        scene.clear()
 
-    #     # ---- Scroll Area ----
-    #     self.scroll_area = QScrollArea()
-    #     self.scroll_area.setWidgetResizable(True)
-    #     self.scroll_area.setWidget(self.view)
+        scale: int = 150
+        node_size: int = 40
+        offset: int = node_size // 2
 
-    #     # ---- Layout principal ----
-    #     self.container = QWidget()
-    #     self.layout_main = QVBoxLayout()
+        #     # Create a dictionary to quickly find hub positions
+        node_positions = {node.name: node.pos for node in graph.nodes.values()}
 
-    #     self.layout_main.addWidget(self.title)
-    #     self.layout_main.addWidget(self.scroll_area)
+        #     # Draw connections first so they appear under hubs
+        for link in graph.links.values():
+            names = link.name.split("-")
+            if (
+                len(names) == 2
+                and names[0] in node_positions
+                and names[1] in node_positions
+            ):
+                x1, y1 = node_positions[names[0]]
+                x2, y2 = node_positions[names[1]]
+                pen_line = QPen(QColor("#e2e8f0"))
+                pen_line.setWidth(2)
+                scene.addLine(
+                    x1 * scale,
+                    y1 * scale,
+                    x2 * scale,
+                    y2 * scale,
+                    pen_line,
+                )
 
-    #     self.container.setLayout(self.layout_main)
+        def __draw_hub(node: Node):
+            orig_x, orig_y = node.pos
+            x = orig_x * scale
+            y = orig_y * scale
 
-    #     self.setCentralWidget(self.container)
+            #         # Create a circle centered on the point
+            node_color = (
+                node.color if hasattr(node, "color") and node.color else "cyan"
+            )
+            scene.addEllipse(
+                x - offset,
+                y - offset,
+                node_size,
+                node_size,
+                QPen(Qt.GlobalColor.white),
+                QBrush(QColor(node_color)),
+            )
 
-    #     self.scene.clear()  # Clear before redrawing
+            #         # Add hub name above
+            text = scene.addText(node.name)
+            text.setDefaultTextColor("white")
+            text.setPos(x - offset, y - offset - 25)
 
-    #     scale: int = 150
-    #     node_size: int = 40
-    #     offset: int = node_size // 2
+        #     # Draw hubs
+        for node in graph.nodes.values():
+            __draw_hub(node)
 
-    #     # Create a dictionary to quickly find hub positions
-    #     node_positions = {node.name: node.pos for node in
-    # graph.nodes.values()}
+        rect = scene.itemsBoundingRect()
 
-    #     # Draw connections first so they appear under hubs
-    #     for link in graph.links.values():
-    #         names = link.name.split("-")
-    #         if (
-    #             len(names) == 2
-    #             and names[0] in node_positions
-    #             and names[1] in node_positions
-    #         ):
-    #             x1, y1 = node_positions[names[0]]
-    #             x2, y2 = node_positions[names[1]]
-    #             pen_line = QPen(QColor("#e2e8f0"))
-    #             pen_line.setWidth(2)
-    #             self.scene.addLine(
-    #                 x1 * scale,
-    #                 y1 * scale,
-    #                 x2 * scale,
-    #                 y2 * scale,
-    #                 pen_line,
-    #             )
+        padding = 120
 
-    #     def __draw_hub(node: Node):
-    #         orig_x, orig_y = node.pos
-    #         x = orig_x * scale
-    #         y = orig_y * scale
-
-    #         # Create a circle centered on the point
-    #         node_color = (
-    #             node.color if hasattr(node, "color") and node.color else
-    # "cyan"
-    #         )
-    #         self.scene.addEllipse(
-    #             x - offset,
-    #             y - offset,
-    #             node_size,
-    #             node_size,
-    #             QPen(Qt.GlobalColor.black),
-    #             QBrush(QColor(node_color)),
-    #         )
-
-    #         # Add hub name above
-    #         text = self.scene.addText(node.name)
-    #         text.setPos(x - offset, y - offset - 25)
-
-    #     # Draw hubs
-    #     for node in graph.nodes.values():
-    #         __draw_hub(node)
-
-    #     rect = self.scene.itemsBoundingRect()
-
-    #     padding = 120
-
-    #     self.scene.setSceneRect(
-    #         rect.adjusted(-padding, -padding, padding, padding)
-    #     )
+        scene.setSceneRect(rect.adjusted(-padding, -padding, padding, padding))

@@ -3,12 +3,11 @@ import sys
 from typing import Tuple
 
 from src.graph.Graph import Graph
-from src.graph.algorithms.Dijkstra import Djikstra
 from src.graph.link import Link
 from src.graph.node import Node
 from src.view.ViewApp import ViewApp
 
-from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtCore import QObject, Signal
 
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
@@ -52,6 +51,7 @@ class Controller(QObject):
 
     file_error = Signal(str)
     file_loaded = Signal(bool)
+    load_graph = Signal(Graph)
 
     def __init__(self) -> None:
         """
@@ -64,7 +64,7 @@ class Controller(QObject):
         self.logger = logging.getLogger("Fly-In")
         self.map_name: str = ""
         self.drone_list: list[Drone] = []
-        self.graph: Graph = Graph()
+        self.graph: Graph
 
     def process(self) -> None:
         """
@@ -94,6 +94,10 @@ class Controller(QObject):
 
             if map_model:
                 self.__init_graph(map_model)
+                self.init_simulation(
+                    map_model.nb_drones,
+                    map_model.start_hub.pos,
+                )
                 self.logger.info("File successfully loaded")
                 self.file_loaded.emit(True)
             else:
@@ -142,6 +146,7 @@ class Controller(QObject):
             return None
 
     def __init_graph(self, map_model: MapModel):
+        self.graph = Graph()
         self.graph.name = self.map_name
         hubs = map_model.hubs.copy()
         hubs.append(map_model.end_hub)
@@ -171,19 +176,21 @@ class Controller(QObject):
 
         self.logger.info(repr(self.graph))
 
-    # def __init_simulation(
-    #     self, nb_drone: int, start_pos: Tuple[int, int]
-    # ) -> None:
-    #     """
-    #     Initializes the simulation by instantiating drones.
+    def init_simulation(
+        self, nb_drone: int, start_pos: Tuple[int, int]
+    ) -> None:
+        """
+        Initializes the simulation by instantiating drones.
 
-    #     Args:
-    #         nb_drone (int): The number of drones to initialize.
-    #         start_pos (Tuple[int, int]): Drone start coordinates (x, y).
-    #     """
-    #     for nb in range(nb_drone):
-    #         self.drone_list.append(Drone(nb + 1, start_pos))
-    #     self.logger.info("All drones initialized")
+        Args:
+            nb_drone (int): The number of drones to initialize.
+            start_pos (Tuple[int, int]): Drone start coordinates (x, y).
+        """
+        self.drone_list = []
+        for nb in range(nb_drone):
+            self.drone_list.append(Drone(nb + 1, start_pos))
+        self.logger.info("All drones initialized")
+        self.load_graph.emit(self.graph)
 
     def exit_program(self) -> None:
         """
