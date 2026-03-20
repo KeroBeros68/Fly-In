@@ -16,38 +16,24 @@ from PySide6.QtGui import (
     QBrush,
     QColor,
     QFont,
-    QFontDatabase,
     QPen,
 )
-import os
 
 from src.graph.Graph import Graph
 from src.graph.node import Node
 from src.view.components.Button import Button
+from src.view.pages.Page import Page
 
 logger = logging.getLogger("Fly-In")
 
 
-class SimPage(QWidget):
+class SimPage(Page):
     def __init__(self) -> None:
         super().__init__()
         self.font_family = self._load_fonts()
         self.graph: Graph | None = None
         self.title_label: QLabel | None = None
         self.scene: QGraphicsScene | None = None
-
-    def _load_fonts(self):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        font_path = os.path.join(
-            current_dir, "..", "assets", "fonts", "Orbitron-Bold.ttf"
-        )
-
-        if os.path.exists(font_path):
-            font_id = QFontDatabase.addApplicationFont(font_path)
-            families = QFontDatabase.applicationFontFamilies(font_id)
-            if families:
-                return families[0]
-        return "Arial"
 
     def _load_graph(self, graph: Graph):
         self.graph = graph
