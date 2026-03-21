@@ -1,5 +1,6 @@
 import logging
 import tomllib
+from typing import Any
 
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -26,17 +27,17 @@ logger = logging.getLogger("Fly-In")
 
 
 class FileDropInput(QLineEdit):
-    def __init__(self, on_file_selected=None):
+    def __init__(self, on_file_selected: Any = None) -> None:
         super().__init__()
         self.setAcceptDrops(True)
         self.on_file_selected = on_file_selected
         self.setPlaceholderText("Drag & drop a file or click Browse")
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: Any) -> None:
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: Any) -> None:
         files = event.mimeData().urls()
         if files:
             file_path = files[0].toLocalFile()
@@ -52,7 +53,7 @@ class MenuPage(Page):
     def __init__(self) -> None:
         super().__init__()
 
-    def _get_disabled_button_style(self):
+    def _get_disabled_button_style(self) -> str:
         return """
             QPushButton {
                 background-color: #333333;
@@ -62,7 +63,7 @@ class MenuPage(Page):
             }
         """
 
-    def _get_enabled_button_style(self):
+    def _get_enabled_button_style(self) -> str:
         return """
             QPushButton {
                 background-color: #121212;
@@ -76,7 +77,7 @@ class MenuPage(Page):
             }
         """
 
-    def set_start_enabled(self, enabled: bool):
+    def set_start_enabled(self, enabled: bool) -> None:
         self.btn_start.setEnabled(enabled)
         if enabled:
             self.btn_start.setStyleSheet(self._get_enabled_button_style())
@@ -140,7 +141,7 @@ class MenuPage(Page):
 
         self.btn_start.clicked.connect(lambda: stack.setCurrentIndex(1))
 
-        def __open_website():
+        def __open_website() -> None:
             url = QUrl("https://github.com/keroberos68")
             QDesktopServices.openUrl(url)
 
@@ -158,7 +159,7 @@ class MenuPage(Page):
         )
         btn_exit.clicked.connect(__exit_btn)
 
-        def __version_read() -> str:
+        def __version_read() -> Any:
             with open("pyproject.toml", "rb") as f:
                 data = tomllib.load(f)
             return data["project"]["version"]
@@ -195,7 +196,7 @@ class MenuPage(Page):
 
         return widget
 
-    def open_file(self, parent: QWidget, file_input: FileDropInput):
+    def open_file(self, parent: QWidget, file_input: FileDropInput) -> None:
         file_path, _ = QFileDialog.getOpenFileName(
             parent,
             "Select flight file",

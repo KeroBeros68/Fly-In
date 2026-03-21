@@ -4,7 +4,7 @@ from src.graph import Node, NodeConnectedNodeError
 
 
 class TestNode():
-    def test_add_node(self):
+    def test_add_node(self) -> None:
         node = Node("test", "type_test", (1, 1), "zone_test")
         node2 = Node("test2", "type_test2", (1, 2), "zone_test")
         node3 = Node("test3", "type_test3", (1, 3), "zone_test")
@@ -15,7 +15,7 @@ class TestNode():
         assert node2 in node.connected_nodes
         assert node3 in node.connected_nodes
 
-    def test_add_same_node(self):
+    def test_add_same_node(self) -> None:
         try:
             node = Node("test", "type_test", (1, 1), "zone_test")
             node.add_connected_node(node)
@@ -23,7 +23,7 @@ class TestNode():
         except NodeConnectedNodeError:
             pass
 
-    def test_add_again_node(self):
+    def test_add_again_node(self) -> None:
         try:
             node = Node("test", "type_test", (1, 1), "zone_test")
             node3 = Node("test3", "type_test3", (1, 3), "zone_test")

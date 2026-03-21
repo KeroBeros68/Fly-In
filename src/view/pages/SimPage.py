@@ -34,7 +34,7 @@ class SimPage(Page):
         self.title_label: QLabel | None = None
         self.scene: QGraphicsScene | None = None
 
-    def _load_graph(self, graph: Graph):
+    def _load_graph(self, graph: Graph) -> None:
         self.graph = graph
         if self.title_label is not None:
             self.title_label.setText(self.graph.name)
@@ -161,7 +161,7 @@ class SimPage(Page):
                     pen_line,
                 )
 
-        def __draw_hub(node: Node):
+        def __draw_hub(node: Node) -> None:
             orig_x, orig_y = node.pos
             x = orig_x * scale
             y = orig_y * scale
@@ -191,11 +191,11 @@ class SimPage(Page):
 
         scene.setSceneRect(rect.adjusted(-padding, 0, padding, padding))
 
-    def log_move(self, tour, texte):
+    def log_move(self, tour: str, texte: str) -> None:
         self.log_console.append(
             f"<b style='color:white;'>[TOUR {tour}]</b> : {texte}"
         )
 
-    def _scroll_log_to_bottom(self):
+    def _scroll_log_to_bottom(self) -> None:
         sb = self.log_console.verticalScrollBar()
         sb.setValue(sb.maximum())

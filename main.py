@@ -7,8 +7,8 @@ import time
 from src.utils.check_env.RunSecurity import RunEnvironmentError, RunSecurity
 from src.utils.logger import setup_logger
 
-TERMINAL: list[str] = ["gnome-terminal", "--"]
-# TERMINAL: list[str] = ["konsole", "-e"]
+# TERMINAL: list[str] = ["gnome-terminal", "--"]
+TERMINAL: list[str] = ["konsole", "-e"]
 
 
 def main() -> None:

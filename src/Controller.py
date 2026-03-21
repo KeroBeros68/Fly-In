@@ -20,7 +20,7 @@ class ControllerError(Exception):
     Exception raised for errors in the Controller.
     """
 
-    def __init__(self, message: str):
+    def __init__(self, message: str) -> None:
         """
         Initializes the ControllerError.
 
@@ -81,7 +81,7 @@ class Controller(QObject):
 
         sys.exit(self.app.app.exec())
 
-    def load_file(self, path: str):
+    def load_file(self, path: str) -> None:
         if path == "":
             self.file_loaded.emit(False)
             return
@@ -145,7 +145,7 @@ class Controller(QObject):
             self.file_error.emit(f"Error: {e}")
             return None
 
-    def __init_graph(self, map_model: MapModel):
+    def __init_graph(self, map_model: MapModel) -> None:
         self.graph = Graph()
         self.graph.name = self.map_name
         hubs = map_model.hubs.copy()

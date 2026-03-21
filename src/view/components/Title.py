@@ -10,7 +10,7 @@ from PySide6.QtGui import (
 
 
 class Title(QLabel):
-    def __init__(self, name: str, font_family) -> None:
+    def __init__(self, name: str, font_family: str) -> None:
         super().__init__(name)
         self.title_font = QFont(font_family, 32, QFont.Weight.Bold)
         self.name = name

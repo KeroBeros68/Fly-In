@@ -10,7 +10,7 @@ logger = logging.getLogger("Fly-In")
 
 class Djikstra:
     @staticmethod
-    def dijkstra(graph: Graph):
+    def dijkstra(graph: Graph) -> tuple[list[tuple[str, int]], float]:
 
         distances = {node: float("inf") for node in graph.nodes.keys()}
         previous = {}
@@ -35,7 +35,7 @@ class Djikstra:
                     1
                     if neighbor.zone == "normal"
                     else (
-                        0.9
+                        0.9999
                         if neighbor.zone == "priority"
                         else 2 if neighbor.zone == "restricted" else math.inf
                     )
