@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Tuple
 
 from src.graph.Graph import Graph
 from src.graph.link import Link
@@ -13,7 +12,6 @@ from PySide6.QtCore import QObject, Signal
 from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
 from src.parsing.models import MapModel
-from src.simulation.drone import Drone
 
 
 class ControllerError(Exception):
@@ -65,8 +63,8 @@ class Controller(QObject):
         self.logger = logging.getLogger("Fly-In")
         self.simulation_engine: Simulation = Simulation()
         self.map_name: str = ""
-        
         self.graph: Graph
+        self.nb_drones: int = 0
 
     def process(self) -> None:
         """
@@ -96,12 +94,10 @@ class Controller(QObject):
 
             if map_model:
                 self.__init_graph(map_model)
-                self.init_simulation(
-                    map_model.nb_drones,
-                    map_model.start_hub.pos,
-                )
+                self.nb_drones = map_model.nb_drones
                 self.logger.info("File successfully loaded")
                 self.file_loaded.emit(True)
+                self.launch_simulation()
             else:
                 self.logger.info("File not loaded")
                 self.file_loaded.emit(False)
@@ -175,12 +171,10 @@ class Controller(QObject):
                 self.graph.nodes[connection.zone1]
             )
             self.graph.add_link(link)
-
+        self.load_graph.emit(self.graph)
         self.logger.info(repr(self.graph))
 
-    def init_simulation(
-        self, nb_drone: int, start_pos: Tuple[int, int]
-    ) -> None:
+    def launch_simulation(self) -> None:
         """
         Initializes the simulation by instantiating drones.
 
@@ -188,8 +182,9 @@ class Controller(QObject):
             nb_drone (int): The number of drones to initialize.
             start_pos (Tuple[int, int]): Drone start coordinates (x, y).
         """
-        self.simulation_engine.start(self.graph, nb_drone)
-        self.load_graph.emit(self.graph)
+        self.logger.info("Launch Simulation Start")
+        self.simulation_engine.start(self.graph, self.nb_drones)
+        self.logger.info("Launch Simulation Stop")
 
     def exit_program(self) -> None:
         """
