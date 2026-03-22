@@ -57,6 +57,8 @@ def main() -> None:
 
     except ControllerError:
         pass
+    except Exception as e:
+        logger.error(e)
 
 
 if __name__ == "__main__":

@@ -50,8 +50,8 @@ class Controller(QObject):
 
     file_error = Signal(str)
     file_loaded = Signal(bool)
-    load_graph = Signal(Graph)
-    load_sim = Signal(dict[int, list[tuple[str, int]]])
+    load_graph = Signal(object)
+    load_sim = Signal(object)
 
     def __init__(self) -> None:
         """

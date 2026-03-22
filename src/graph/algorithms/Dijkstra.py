@@ -6,6 +6,10 @@ from src.graph.Graph import Graph
 from src.graph.node import Node
 
 
+CHOICE_PENALITY: float = 1.05
+INFINITE_LOOP_SAFE: int = 200
+
+
 class Dijkstra:
     def __init__(self) -> None:
         self.logger = logging.getLogger("Fly-In")
@@ -20,32 +24,28 @@ class Dijkstra:
         start_node = graph.nodes["start"]
         end_name = "goal" if "goal" in graph.nodes else "impossible_goal"
 
-        # heapq: (cost, current_time, node_object)
         queue: list[tuple[float, int, str]] = [(0.0, 0, start_node.name)]
         distances[(start_node.name, 0)] = 0.0
 
         while queue:
-            dist, t, u_name = heapq.heappop(queue)
+            dist, turn, u_name = heapq.heappop(queue)
             u = graph.nodes[u_name]
             if u.name == end_name:
                 new_path = self.__make_path(
-                    start_node.name, (u.name, t), previous
+                    start_node.name, (u.name, turn), previous
                 )
                 return {k: new_path[k] for k in sorted(new_path)}
 
-            # Limite de sécurité pour éviter les boucles infinies en cas de
-            # blocage total
-            if t > 200:
+            if turn > INFINITE_LOOP_SAFE:
                 continue
 
-            # --- OPTION 1 : Se déplacer vers un voisin ---
             for v in u.connected_nodes:
                 if v.name == u.name:
-                    continue  # On gère l'attente séparément
+                    continue
                 if v.zone == "blocked":
                     continue
 
-                arrival_t = t + (2 if v.zone == "restricted" else 1)
+                arrival_t = turn + (2 if v.zone == "restricted" else 1)
 
                 if self.__check_capacity(v, arrival_t, occupancy, graph):
                     move_cost = 0.99 if v.zone == "priority" else 1.0
@@ -55,20 +55,15 @@ class Dijkstra:
                     new_dist = dist + move_cost
                     if new_dist < distances.get((v.name, arrival_t), math.inf):
                         distances[(v.name, arrival_t)] = new_dist
-                        previous[(v.name, arrival_t)] = (u.name, t)
+                        previous[(v.name, arrival_t)] = (u.name, turn)
                         heapq.heappush(queue, (new_dist, arrival_t, v.name))
 
-            # --- OPTION 2 : Attendre sur place (Wait) ---
-            # Le coût d'attente est de 1.0 tour.
-            # On vérifie la capacité du nœud actuel au tour suivant.
-            wait_t = t + 1
+            wait_t = turn + 1
             if self.__check_capacity(u, wait_t, occupancy, graph):
-                new_dist = (
-                    dist + 1.05
-                )  # Légère pénalité pour préférer bouger si possible
+                new_dist = dist + CHOICE_PENALITY
                 if new_dist < distances.get((u.name, wait_t), math.inf):
                     distances[(u.name, wait_t)] = new_dist
-                    previous[(u.name, wait_t)] = (u.name, t)
+                    previous[(u.name, wait_t)] = (u.name, turn)
                     heapq.heappush(queue, (new_dist, wait_t, u.name))
 
         return {}
