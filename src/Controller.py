@@ -51,6 +51,7 @@ class Controller(QObject):
     file_error = Signal(str)
     file_loaded = Signal(bool)
     load_graph = Signal(Graph)
+    load_sim = Signal(dict[int, list[tuple[str, int]]])
 
     def __init__(self) -> None:
         """
@@ -183,8 +184,9 @@ class Controller(QObject):
             start_pos (Tuple[int, int]): Drone start coordinates (x, y).
         """
         self.logger.info("Launch Simulation Start")
-        self.simulation_engine.start(self.graph, self.nb_drones)
+        all_paths = self.simulation_engine.start(self.graph, self.nb_drones)
         self.logger.info("Launch Simulation Stop")
+        self.load_sim.emit(all_paths)
 
     def exit_program(self) -> None:
         """

@@ -1,4 +1,5 @@
 import logging
+from os import path
 
 from PySide6.QtWidgets import (
     QGraphicsScene,
@@ -31,6 +32,7 @@ class SimPage(Page):
         super().__init__()
         self.font_family = self._load_fonts()
         self.graph: Graph | None = None
+        self.allpaths: dict[int, list[tuple[str, int]]] = {}
         self.title_label: QLabel | None = None
         self.scene: QGraphicsScene | None = None
 
@@ -40,6 +42,15 @@ class SimPage(Page):
             self.title_label.setText(self.graph.name)
         if self.scene is not None:
             self.draw_graph(self.graph)
+
+    def _load_sim(self, allpaths: dict[int, list[tuple[str, int]]]) -> None:
+        self.allpaths = allpaths
+        # for current_round in range(len(max(allpaths.values))):
+        #     string = ""
+        #     for drone, path in allpaths.items():
+        #         node, 
+        #         string += f"D{drone}-"
+        #     self.log_move(str(current_round), string)
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
         widget = QWidget()

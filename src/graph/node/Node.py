@@ -39,9 +39,10 @@ class Node:
         self.__pos: Tuple[int, int] = pos
 
         self.__weight: float = math.inf
-        self.__connected_node: List[Node] = []
+        self.__connected_node: List[Node] = [self]
         self.__previous_node: str = ""
 
+        self.__max_drones: int = 1
         self.__color: Optional[str] = color
         self.__zone: str = zone
 
@@ -116,6 +117,14 @@ class Node:
         self.__weight = new_weight
 
     @property
+    def max_drones(self) -> int:
+        return self.__max_drones
+
+    @max_drones.setter
+    def max_drones(self, max_drones: int) -> None:
+        self.__max_drones = max_drones
+
+    @property
     def connected_nodes(self) -> List["Node"]:
         """
         Retrieves the list of connected nodes.
@@ -143,7 +152,7 @@ class Node:
         Raises:
             NodeConnectedNodeError: Occurs if the target already exists.
         """
-        if new_node in self.__connected_node or new_node.name == self.name:
+        if new_node in self.__connected_node:
             raise NodeConnectedNodeError(
                 f"new_node {new_node.name} for {self.__name}"
             )
@@ -157,6 +166,9 @@ class Node:
         for node in self.connected_nodes:
             res += f"\n{node.name}"
         return res
+
+    def __lt__(self, other: "Node") -> bool:
+        return self.name < other.name
 
 
 class NodeError(Exception):
