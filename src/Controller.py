@@ -5,6 +5,7 @@ from typing import Tuple
 from src.graph.Graph import Graph
 from src.graph.link import Link
 from src.graph.node import Node
+from src.simulation.Simulation import Simulation
 from src.view.ViewApp import ViewApp
 
 from PySide6.QtCore import QObject, Signal
@@ -62,8 +63,9 @@ class Controller(QObject):
         """
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
+        self.simulation_engine: Simulation = Simulation()
         self.map_name: str = ""
-        self.drone_list: list[Drone] = []
+        
         self.graph: Graph
 
     def process(self) -> None:
@@ -186,10 +188,7 @@ class Controller(QObject):
             nb_drone (int): The number of drones to initialize.
             start_pos (Tuple[int, int]): Drone start coordinates (x, y).
         """
-        self.drone_list = []
-        for nb in range(nb_drone):
-            self.drone_list.append(Drone(nb + 1, start_pos))
-        self.logger.info("All drones initialized")
+        self.simulation_engine.start(self.graph, nb_drone)
         self.load_graph.emit(self.graph)
 
     def exit_program(self) -> None:
