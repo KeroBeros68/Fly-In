@@ -4,6 +4,9 @@ import sys
 from src.graph.Graph import Graph
 from src.graph.link import Link
 from src.graph.node import Node
+from src.graph.node.EndNode import EndNode
+from src.graph.node.HubNode import HubNode
+from src.graph.node.StartNode import StartNode
 from src.simulation.PathfindingAlgorithm import PathfindingAlgorithm
 from src.simulation.Simulation import Simulation
 from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
@@ -154,12 +157,26 @@ class Controller(QObject):
         self.graph = Graph()
         self.graph.name = self.map_name
         hubs = map_model.hubs.copy()
-        hubs.append(map_model.end_hub)
-        hubs.append(map_model.start_hub)
+
+        end_node = EndNode(
+            map_model.end_hub.name,
+            map_model.end_hub.pos,
+            map_model.end_hub.zone.value,
+            map_model.end_hub.color,
+        )
+        self.graph.add_node(end_node)
+
+        start_node = StartNode(
+            map_model.start_hub.name,
+            map_model.start_hub.pos,
+            map_model.start_hub.zone.value,
+            map_model.start_hub.color,
+        )
+        self.graph.add_node(start_node)
+
         for hub in hubs:
-            node: Node = Node(
+            node: Node = HubNode(
                 hub.name,
-                hub.hub_type.value,
                 hub.pos,
                 hub.zone.value,
                 hub.color,

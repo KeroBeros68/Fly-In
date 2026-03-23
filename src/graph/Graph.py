@@ -2,6 +2,7 @@ from typing import Dict
 
 from src.graph.link import Link
 from src.graph.node import Node
+from src.graph.node.StartNode import StartNode
 
 
 class Graph:
@@ -40,7 +41,7 @@ class Graph:
     def add_node(self, node: Node) -> None:
         if node in self.__nodes:
             raise GraphNodeError("Node already in Graph")
-        if node.type == "start_hub":
+        if isinstance(node, StartNode):
             node.weight = 0
         self.__nodes[node.name] = node
 

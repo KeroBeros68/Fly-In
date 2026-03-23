@@ -4,12 +4,14 @@ import math
 
 from src.graph.Graph import Graph
 from src.graph.node import Node
+from src.graph.node.EndNode import EndNode
+from src.graph.node.StartNode import StartNode
 
 
 WAITING_PENALTY: float = 1.05  # Penalty to discourage waiting
 MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
 PRIORITY_ZONE_DISCOUNT: float = 0.99  # Small discount for priority zones
-RESTRICTED_ZONE_DISCOUNT: float = 1.00
+RESTRICTED_ZONE_COST: float = 1.5  # Cost penalty for restricted zones
 
 
 class Dijkstra:
@@ -34,6 +36,12 @@ class Dijkstra:
 
         while queue:
             dist, turn, current_node_name = heapq.heappop(queue)
+
+            # Skip if already processed with better distance
+            if (current_node_name, turn) in distances:
+                if dist > distances[(current_node_name, turn)]:
+                    continue
+
             current_node = graph.nodes[current_node_name]
             if current_node.name == end_name:
                 new_path = self.__make_path(
@@ -66,7 +74,7 @@ class Dijkstra:
                     if neighbor_node.zone == "priority":
                         move_cost = PRIORITY_ZONE_DISCOUNT
                     elif neighbor_node.zone == "restricted":
-                        move_cost = RESTRICTED_ZONE_DISCOUNT
+                        move_cost = RESTRICTED_ZONE_COST
                     else:
                         move_cost = 1.0
 
@@ -107,7 +115,7 @@ class Dijkstra:
         occupancy: dict[int, dict[str, int]],
         graph: Graph,
     ) -> bool:
-        if node.type in ["start_hub", "goal_hub"]:
+        if isinstance(node, StartNode) or isinstance(node, EndNode):
             return True
 
         max_cap = getattr(node, "max_drones", 1)
