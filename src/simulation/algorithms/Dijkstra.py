@@ -22,7 +22,7 @@ class Dijkstra:
         self,
         graph: Graph,
         occupancy: dict[int, dict[str, int]],
-        link_occupancy: dict[int, dict[str, int]]
+        link_occupancy: dict[int, dict[str, int]],
     ) -> dict[int, str]:
 
         distances: dict[tuple[str, int], float] = {}
@@ -35,11 +35,11 @@ class Dijkstra:
         distances[(start_node.name, 0)] = 0.0
 
         while queue:
-            dist, turn, current_node_name = heapq.heappop(queue)
+            distance, turn, current_node_name = heapq.heappop(queue)
 
             # Skip if already processed with better distance
             if (current_node_name, turn) in distances:
-                if dist > distances[(current_node_name, turn)]:
+                if distance > distances[(current_node_name, turn)]:
                     continue
 
             current_node = graph.nodes[current_node_name]
@@ -63,8 +63,12 @@ class Dijkstra:
                 )
 
                 if not self.__check_link_capacity(
-                    current_node, neighbor_node, turn, arrival_t,
-                    link_occupancy, graph
+                    current_node,
+                    neighbor_node,
+                    turn,
+                    arrival_t,
+                    link_occupancy,
+                    graph,
                 ):
                     continue
 
@@ -78,32 +82,35 @@ class Dijkstra:
                     else:
                         move_cost = 1.0
 
-                    new_dist = dist + move_cost
-                    if new_dist < distances.get(
+                    new_distance = distance + move_cost
+                    if new_distance < distances.get(
                         (neighbor_node.name, arrival_t), math.inf
                     ):
-                        distances[(neighbor_node.name, arrival_t)] = new_dist
+                        distances[(neighbor_node.name, arrival_t)] = (
+                            new_distance
+                        )
                         previous[(neighbor_node.name, arrival_t)] = (
                             current_node.name,
                             turn,
                         )
                         heapq.heappush(
-                            queue, (new_dist, arrival_t, neighbor_node.name)
+                            queue,
+                            (new_distance, arrival_t, neighbor_node.name),
                         )
 
             wait_t = turn + 1
             if self.__check_capacity(current_node, wait_t, occupancy, graph):
-                new_dist = dist + WAITING_PENALTY
-                if new_dist < distances.get(
+                new_distance = distance + WAITING_PENALTY
+                if new_distance < distances.get(
                     (current_node.name, wait_t), math.inf
                 ):
-                    distances[(current_node.name, wait_t)] = new_dist
+                    distances[(current_node.name, wait_t)] = new_distance
                     previous[(current_node.name, wait_t)] = (
                         current_node.name,
                         turn,
                     )
                     heapq.heappush(
-                        queue, (new_dist, wait_t, current_node.name)
+                        queue, (new_distance, wait_t, current_node.name)
                     )
 
         return {}
@@ -118,9 +125,9 @@ class Dijkstra:
         if isinstance(node, StartNode) or isinstance(node, EndNode):
             return True
 
-        max_cap = getattr(node, "max_drones", 1)
+        maximum_capacity = getattr(node, "max_drones", 1)
         current_occ = occupancy.get(time, {}).get(node.name, 0)
-        return current_occ < max_cap
+        return current_occ < maximum_capacity
 
     def __check_link_capacity(
         self,
@@ -138,12 +145,12 @@ class Dijkstra:
         if not link_obj:
             return True
 
-        max_capacity = link_obj.max_drone or 1
+        maximum_capacity = link_obj.max_drone or 1
 
         for time in range(start_time + 1, arrival_time + 1):
             current_occ = link_occupancy.get(time, {}).get(link_name, 0)
             current_occ += link_occupancy.get(time, {}).get(reverse_link, 0)
-            if current_occ >= max_capacity:
+            if current_occ >= maximum_capacity:
                 return False
 
         return True

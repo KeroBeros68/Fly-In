@@ -137,7 +137,7 @@ class Controller(QObject):
             start_pos (Tuple[int, int]): Drone start coordinates (x, y).
         """
         self.logger.info("Launch Simulation Start")
-        all_paths = self.simulation_engine.start(
+        all_paths, output_lines = self.simulation_engine.start(
             self.algorithm, self.graph, self.nb_drones
         )
         self.logger.info("Launch Simulation Stop")

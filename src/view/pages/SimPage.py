@@ -82,7 +82,6 @@ class SimPage(Page):
                         x2, y2 = self.graph.nodes[path_node.split("-")[1]].pos
                         x = (x1 * SCALE + x2 * SCALE) / 2 / SCALE
                         y = (y1 * SCALE + y2 * SCALE) / 2 / SCALE
-                        self.logger.error(f"{x} {y}")
                     else:
                         x1, y1 = self.graph.nodes[path_node].pos
                         x = x1
