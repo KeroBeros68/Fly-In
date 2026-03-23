@@ -10,11 +10,11 @@ CHOICE_PENALITY: float = 1.05
 INFINITE_LOOP_SAFE: int = 200
 
 
-class Dijkstra:
+class Dijkstra():
     def __init__(self) -> None:
         self.logger = logging.getLogger("Fly-In")
 
-    def dijkstra(
+    def process(
         self, graph: Graph, occupancy: dict[int, dict[str, int]]
     ) -> dict[int, str]:
 

@@ -1,19 +1,18 @@
 import logging
 
 from src.graph.Graph import Graph
-from src.graph.algorithms.Dijkstra import Dijkstra
+from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
 
 
 class Simulation:
     def __init__(self) -> None:
         self.logger = logging.getLogger("Fly-In")
 
-    def start(self, graph: Graph, nb_drone: int):
-        algorithm = Dijkstra()
+    def start(self, algorithm: AlgorithmProtocol, graph: Graph, nb_drone: int):
         occupancy: dict[int, dict[str, int]] = {}
         all_paths: dict[int, dict[int, str]] = {}
         for nb in range(nb_drone):
-            path = algorithm.dijkstra(graph, occupancy)
+            path = algorithm.process(graph, occupancy)
             if not path:
                 self.logger.error(
                     f"Drone {nb + 1} could not find a path!"

@@ -4,7 +4,9 @@ import sys
 from src.graph.Graph import Graph
 from src.graph.link import Link
 from src.graph.node import Node
+from src.simulation.PathfindingAlgorithm import PathfindingAlgorithm
 from src.simulation.Simulation import Simulation
+from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
 from src.view.ViewApp import ViewApp
 
 from PySide6.QtCore import QObject, Signal
@@ -66,6 +68,10 @@ class Controller(QObject):
         self.map_name: str = ""
         self.graph: Graph
         self.nb_drones: int = 0
+
+        self.algorithm: AlgorithmProtocol = PathfindingAlgorithm.create(
+            "Dijkstra"
+        )
 
     def process(self) -> None:
         """
@@ -184,7 +190,9 @@ class Controller(QObject):
             start_pos (Tuple[int, int]): Drone start coordinates (x, y).
         """
         self.logger.info("Launch Simulation Start")
-        all_paths = self.simulation_engine.start(self.graph, self.nb_drones)
+        all_paths = self.simulation_engine.start(
+            self.algorithm, self.graph, self.nb_drones
+        )
         self.logger.info("Launch Simulation Stop")
         self.load_sim.emit(all_paths)
 
