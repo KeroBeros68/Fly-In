@@ -4,6 +4,9 @@ import subprocess
 import sys
 import time
 
+from src.parsing.MapParser import MapParser
+from src.simulation.PathfindingAlgorithm import PathfindingAlgorithm
+from src.simulation.Simulation import Simulation
 from src.utils.check_env.RunSecurity import RunEnvironmentError, RunSecurity
 from src.utils.logger import setup_logger
 
@@ -25,9 +28,7 @@ def main() -> None:
         try:
             secure_env.check_process()
             print("\n[OK] Environment secure. Launching GUI...")
-            time.sleep(
-                0.2
-            )
+            time.sleep(0.2)
         except RunEnvironmentError as e:
             logger.error(f"{e}")
             logger.info("Programm exit")
@@ -52,7 +53,9 @@ def main() -> None:
     try:
         from src.Controller import Controller, ControllerError
 
-        controller = Controller()
+        controller = Controller(
+            MapParser(), PathfindingAlgorithm.create("dijkstra"), Simulation()
+        )
         controller.process()
 
     except ControllerError:

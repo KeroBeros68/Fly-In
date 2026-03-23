@@ -7,14 +7,12 @@ from src.graph.node import Node
 from src.graph.node.EndNode import EndNode
 from src.graph.node.HubNode import HubNode
 from src.graph.node.StartNode import StartNode
-from src.simulation.PathfindingAlgorithm import PathfindingAlgorithm
 from src.simulation.Simulation import Simulation
 from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
 from src.view.ViewApp import ViewApp
 
 from PySide6.QtCore import QObject, Signal
 
-from src.parsing import MapParser
 from src.parsing.errors.MapErrors import MapError
 from src.parsing.models import MapModel
 
@@ -58,7 +56,7 @@ class Controller(QObject):
     load_graph = Signal(object)
     load_sim = Signal(object)
 
-    def __init__(self) -> None:
+    def __init__(self, parser, algorithm, simulation) -> None:
         """
         Initializes the Controller.
 
@@ -67,11 +65,9 @@ class Controller(QObject):
         """
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
-        self.simulation_engine: Simulation = Simulation()
-        self.algorithm: AlgorithmProtocol = PathfindingAlgorithm.create(
-            "dijkstra"
-        )
-
+        self.parser = parser
+        self.algorithm: AlgorithmProtocol = algorithm
+        self.simulation_engine: Simulation = simulation
         self.map_name: str = ""
         self.graph: Graph
         self.nb_drones: int = 0
@@ -145,8 +141,7 @@ class Controller(QObject):
         """
         self.logger.info(content)
         try:
-            parser: MapParser = MapParser(content)
-            config = parser.process()
+            config = self.parser.process(content)
             return config
         except MapError as e:
             self.logger.error(f"{e}")

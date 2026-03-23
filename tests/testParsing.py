@@ -235,8 +235,8 @@ class TestParser:
     )
 
     def test_good_map(self) -> None:
-        parser = MapParser(self.GOOD_MAP)
-        result = parser.process()
+        parser = MapParser()
+        result = parser.process(self.GOOD_MAP)
         assert result.nb_drones == 15
         assert result.start_hub.name == "start"
         assert result.end_hub.name == "goal"
@@ -244,177 +244,177 @@ class TestParser:
         assert len(result.connections) == 18
 
     def test_empty_map(self) -> None:
-        parser = MapParser(self.EMPTY_MAP)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.EMPTY_MAP)
             pytest.fail("INVALID[ Empty map ]")
         except MapEmptyError:
             pass
 
     def test_no_drone_line(self) -> None:
-        parser = MapParser(self.NO_DRONE_LINE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_DRONE_LINE)
             pytest.fail("INVALID[ No drone line ]")
         except MapNbDronesError:
             pass
 
     def test_zero_drone(self) -> None:
-        parser = MapParser(self.ZERO_DRONE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.ZERO_DRONE)
             pytest.fail("INVALID[ Zero Drone ]")
         except ValidationError:
             pass
 
     def test_no_drone(self) -> None:
-        parser = MapParser(self.NO_DRONE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_DRONE)
             pytest.fail("INVALID[ No Drone ]")
         except MapNbDronesError:
             pass
 
     def test_no_start(self) -> None:
-        parser = MapParser(self.NO_START)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_START)
             pytest.fail("INVALID[ No Start ]")
         except (MapMissingHubError,):
             pass
 
     def test_no_hub_name(self) -> None:
-        parser = MapParser(self.NO_NAME)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_NAME)
             pytest.fail("INVALID[ No hub name ]")
         except (MapHubError,):
             pass
 
     def test_dup_start(self) -> None:
-        parser = MapParser(self.DUP_START)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.DUP_START)
             pytest.fail("INVALID[ Dup Start ]")
         except (MapDuplicateHubError,):
             pass
 
     def test_dup_start_ype(self) -> None:
-        parser = MapParser(self.DUP_START_TYPE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.DUP_START_TYPE)
             pytest.fail("INVALID[ Dup Start type ]")
         except (MapDuplicateHubError,):
             pass
 
     def test_dup_end_type(self) -> None:
-        parser = MapParser(self.DUP_END_TYPE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.DUP_END_TYPE)
             pytest.fail("INVALID[ Dup End type ]")
         except (MapDuplicateHubError,):
             pass
 
     def test_no_end(self) -> None:
-        parser = MapParser(self.NO_END)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_END)
             pytest.fail("INVALID[ No End ]")
         except (MapMissingHubError,):
             pass
 
     def test_no_pos(self) -> None:
-        parser = MapParser(self.NO_POS)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_POS)
             pytest.fail("INVALID[ No position coord ]")
         except (MapHubError,):
             pass
 
     def test_pos_is_alpha(self) -> None:
-        parser = MapParser(self.POS_IS_ALPHA)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.POS_IS_ALPHA)
             pytest.fail("INVALID[ Pos is alpha ]")
         except (MapInvalidCoordinatesError,):
             pass
 
     def test_invalid_hub_type(self) -> None:
-        parser = MapParser(self.INVALID_HUB_TYPE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.INVALID_HUB_TYPE)
             pytest.fail("INVALID[ Hub type error]")
         except (MapPrefixError,):
             pass
 
     def test_invalid_hub_zone(self) -> None:
-        parser = MapParser(self.INVALID_HUB_ZONE)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.INVALID_HUB_ZONE)
             pytest.fail("INVALID[ Hub zone error]")
         except (MapZoneHubError,):
             pass
 
     def test_dub_hub(self) -> None:
-        parser = MapParser(self.DUP_HUB)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.DUP_HUB)
             pytest.fail("INVALID[ Hub duplication ]")
         except (MapDuplicateHubError,):
             pass
 
     def test_invalid_prefix_connection(self) -> None:
-        parser = MapParser(self.INVALID_PREFIX_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.INVALID_PREFIX_CONNECTION)
             pytest.fail("INVALID[ Invalid prefix connection ]")
         except (MapPrefixError,):
             pass
 
     def test_no_hub_connection(self) -> None:
-        parser = MapParser(self.NO_HUB_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.NO_HUB_CONNECTION)
             pytest.fail("INVALID[ No hub connection ]")
         except (MapPrefixError,):
             pass
 
     def test_one_hub_connection(self) -> None:
-        parser = MapParser(self.ONE_HUB_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.ONE_HUB_CONNECTION)
             pytest.fail("INVALID[ One hub connection ]")
         except (MapConnectionError,):
             pass
 
     def test_three_hub_connection(self) -> None:
-        parser = MapParser(self.THREE_HUB_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.THREE_HUB_CONNECTION)
             pytest.fail("INVALID[ Three hub connection ]")
         except (MapConnectionError,):
             pass
 
     def test_bad_hub_connection(self) -> None:
-        parser = MapParser(self.BAD_HUB_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.BAD_HUB_CONNECTION)
             pytest.fail("INVALID[ Bad hub connection ]")
         except (MapConnectionError,):
             pass
 
     def test_miror_connection(self) -> None:
-        parser = MapParser(self.MIRROR_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.MIRROR_CONNECTION)
             pytest.fail("INVALID[ Mirror Connection ]")
         except (MapConnectionError,):
             pass
 
     def test_max_link_connection(self) -> None:
-        parser = MapParser(self.MAX_LINK_CONNECTION)
+        parser = MapParser()
         try:
-            parser.process()
+            parser.process(self.MAX_LINK_CONNECTION)
             pytest.fail("INVALID[ Max link connection not a number ]")
         except (MapConnectionError,):
             pass

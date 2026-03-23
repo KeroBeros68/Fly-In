@@ -29,13 +29,13 @@ class MapParser:
     fully validated MapModel object.
     """
 
-    def __init__(self, raw_data: str) -> None:
+    def __init__(self) -> None:
         """Initialize the parser with the raw string content of a map file."""
-        self.__raw_data: str = raw_data
+        self.__raw_data: str = ""
         self.__clean_data: list[str] = []
         self.__map_model: MapModel | None = None
 
-    def process(self) -> MapModel:
+    def process(self, raw_data: str) -> MapModel:
         """Parse the raw map data and return a validated MapModel.
 
         Sanitizes the input, extracts drone count, hubs and connections,
@@ -51,6 +51,7 @@ class MapParser:
             MapHubError: If a hub fails Pydantic validation.
             MapConnectionError: If a connection fails Pydantic validation.
         """
+        self.__raw_data = raw_data
         self.__sanitize(self.__raw_data)
         logger.info(f"Data sanitized: {self.__clean_data}")
         self.__build_map()
