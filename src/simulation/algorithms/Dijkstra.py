@@ -9,6 +9,7 @@ from src.graph.node import Node
 WAITING_PENALTY: float = 1.05  # Penalty to discourage waiting
 MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
 PRIORITY_ZONE_DISCOUNT: float = 0.99  # Small discount for priority zones
+RESTRICTED_ZONE_DISCOUNT: float = 1.00
 
 
 class Dijkstra:
@@ -53,12 +54,11 @@ class Dijkstra:
                 if self.__check_capacity(
                     neighbor_node, arrival_t, occupancy, graph
                 ):
-                    move_cost = (
-                        PRIORITY_ZONE_DISCOUNT
-                        if neighbor_node.zone == "priority"
-                        else 1.0
-                    )
-                    if neighbor_node.zone == "restricted":
+                    if neighbor_node.zone == "priority":
+                        move_cost = PRIORITY_ZONE_DISCOUNT
+                    elif neighbor_node.zone == "restricted":
+                        move_cost = RESTRICTED_ZONE_DISCOUNT
+                    else:
                         move_cost = 1.0
 
                     new_dist = dist + move_cost
