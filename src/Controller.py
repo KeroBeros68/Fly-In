@@ -1,12 +1,10 @@
 import logging
 import sys
 
+from src.FileLoader import FileLoader
+from src.GraphBuilder import GraphBuilder
 from src.graph.Graph import Graph
-from src.graph.link import Link
-from src.graph.node import Node
-from src.graph.node.EndNode import EndNode
-from src.graph.node.HubNode import HubNode
-from src.graph.node.StartNode import StartNode
+from src.parsing.MapParser import MapParser
 from src.simulation.Simulation import Simulation
 from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
 from src.view.ViewApp import ViewApp
@@ -14,7 +12,6 @@ from src.view.ViewApp import ViewApp
 from PySide6.QtCore import QObject, Signal
 
 from src.parsing.errors.MapErrors import MapError
-from src.parsing.models import MapModel
 
 
 class ControllerError(Exception):
@@ -56,7 +53,7 @@ class Controller(QObject):
     load_graph = Signal(object)
     load_sim = Signal(object)
 
-    def __init__(self, parser, algorithm, simulation) -> None:
+    def __init__(self, reader, builder, parser, algorithm, simulation) -> None:
         """
         Initializes the Controller.
 
@@ -65,10 +62,11 @@ class Controller(QObject):
         """
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
-        self.parser = parser
+        self.reader: FileLoader = reader
+        self.builder: GraphBuilder = builder
+        self.parser: MapParser = parser
         self.algorithm: AlgorithmProtocol = algorithm
         self.simulation_engine: Simulation = simulation
-        self.map_name: str = ""
         self.graph: Graph
         self.nb_drones: int = 0
 
@@ -91,15 +89,26 @@ class Controller(QObject):
         if path == "":
             self.file_loaded.emit(False)
             return
+        self.map_name: str = path.split("/")[::-1][0].split(".")[0]
         self.logger.info(f"File received: {path}")
 
         try:
-            content = self.__read_file(path)
+            content = self.reader.read_file(path)
+            if content.startswith("File: "):
+                self.file_error.emit(content)
+                return
             if content != "":
-                map_model = self.__parse_content(content)
+                self.logger.info(content)
+                try:
+                    map_model = self.parser.process(content)
+                except MapError as e:
+                    self.logger.error(f"{e}")
+                    self.file_error.emit(f"Error: {e}")
+                    return
 
             if map_model:
-                self.__init_graph(map_model)
+                self.graph = self.builder.build(map_model, self.map_name)
+                self.load_graph.emit(self.graph)
                 self.nb_drones = map_model.nb_drones
                 self.logger.info("File successfully loaded")
                 self.file_loaded.emit(True)
@@ -110,88 +119,6 @@ class Controller(QObject):
         except MapError as e:
             self.file_loaded.emit(False)
             self.logger.error(f"Error loading file: {e}")
-
-    def __read_file(self, path: str) -> str:
-        """
-        Reads the content of the map file.
-
-        Returns:
-            str: The plain text content of the map file.
-        """
-        self.logger.info(f"File to open and read: '{path}'")
-        try:
-            with open(path) as f:
-                content: str = f.read()
-            self.map_name = path.split("/")[::-1][0].split(".")[0]
-            return content
-        except (FileNotFoundError, PermissionError) as e:
-            self.logger.error(f"File: {e}")
-            self.file_error.emit(f"Error: {e}")
-            return ""
-
-    def __parse_content(self, content: str) -> MapModel | None:
-        """
-        Parses the model extracted from the file content.
-
-        Args:
-            content (str): Content string of the map file.
-
-        Returns:
-            MapModel: A parsed map model representing hubs and paths.
-        """
-        self.logger.info(content)
-        try:
-            config = self.parser.process(content)
-            return config
-        except MapError as e:
-            self.logger.error(f"{e}")
-            self.file_error.emit(f"Error: {e}")
-            return None
-
-    def __init_graph(self, map_model: MapModel) -> None:
-        self.graph = Graph()
-        self.graph.name = self.map_name
-        hubs = map_model.hubs.copy()
-
-        end_node = EndNode(
-            map_model.end_hub.name,
-            map_model.end_hub.pos,
-            map_model.end_hub.zone.value,
-            map_model.end_hub.color,
-        )
-        self.graph.add_node(end_node)
-
-        start_node = StartNode(
-            map_model.start_hub.name,
-            map_model.start_hub.pos,
-            map_model.start_hub.zone.value,
-            map_model.start_hub.color,
-        )
-        self.graph.add_node(start_node)
-
-        for hub in hubs:
-            node: Node = HubNode(
-                hub.name,
-                hub.pos,
-                hub.zone.value,
-                hub.color,
-            )
-            self.graph.add_node(node)
-
-        for connection in map_model.connections:
-            link: Link = Link(
-                f"{connection.zone1}-{connection.zone2}",
-                connection.max_link_capacity,
-            )
-            self.graph.nodes[connection.zone1].add_connected_node(
-                self.graph.nodes[connection.zone2]
-            )
-            self.graph.nodes[connection.zone2].add_connected_node(
-                self.graph.nodes[connection.zone1]
-            )
-            self.graph.add_link(link)
-        self.load_graph.emit(self.graph)
-        self.logger.info(repr(self.graph))
 
     def launch_simulation(self) -> None:
         """

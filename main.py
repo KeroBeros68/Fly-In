@@ -4,6 +4,8 @@ import subprocess
 import sys
 import time
 
+from src.FileLoader import FileLoader
+from src.GraphBuilder import GraphBuilder
 from src.parsing.MapParser import MapParser
 from src.simulation.PathfindingAlgorithm import PathfindingAlgorithm
 from src.simulation.Simulation import Simulation
@@ -54,7 +56,11 @@ def main() -> None:
         from src.Controller import Controller, ControllerError
 
         controller = Controller(
-            MapParser(), PathfindingAlgorithm.create("dijkstra"), Simulation()
+            FileLoader(),
+            GraphBuilder(),
+            MapParser(),
+            PathfindingAlgorithm.create("dijkstra"),
+            Simulation(),
         )
         controller.process()
 
