@@ -53,7 +53,14 @@ class Controller(QObject):
     load_graph = Signal(object)
     load_sim = Signal(object)
 
-    def __init__(self, reader, builder, parser, algorithm, simulation) -> None:
+    def __init__(
+        self,
+        reader: FileLoader,
+        builder: GraphBuilder,
+        parser: MapParser,
+        algorithm: AlgorithmProtocol,
+        simulation: Simulation,
+    ) -> None:
         """
         Initializes the Controller.
 
