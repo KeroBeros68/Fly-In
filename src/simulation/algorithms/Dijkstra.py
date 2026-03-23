@@ -6,11 +6,12 @@ from src.graph.Graph import Graph
 from src.graph.node import Node
 
 
-CHOICE_PENALITY: float = 1.05
-INFINITE_LOOP_SAFE: int = 200
+WAITING_PENALTY: float = 1.05  # Penalty to discourage waiting
+MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
+PRIORITY_ZONE_DISCOUNT: float = 0.99  # Small discount for priority zones
 
 
-class Dijkstra():
+class Dijkstra:
     def __init__(self) -> None:
         self.logger = logging.getLogger("Fly-In")
 
@@ -28,43 +29,65 @@ class Dijkstra():
         distances[(start_node.name, 0)] = 0.0
 
         while queue:
-            dist, turn, u_name = heapq.heappop(queue)
-            u = graph.nodes[u_name]
-            if u.name == end_name:
+            dist, turn, current_node_name = heapq.heappop(queue)
+            current_node = graph.nodes[current_node_name]
+            if current_node.name == end_name:
                 new_path = self.__make_path(
-                    start_node.name, (u.name, turn), previous
+                    start_node.name, (current_node.name, turn), previous
                 )
                 return {k: new_path[k] for k in sorted(new_path)}
 
-            if turn > INFINITE_LOOP_SAFE:
+            if turn > MAX_SIMULATION_TURNS:
                 continue
 
-            for v in u.connected_nodes:
-                if v.name == u.name:
+            for neighbor_node in current_node.connected_nodes:
+                if neighbor_node.name == current_node.name:
                     continue
-                if v.zone == "blocked":
+                if neighbor_node.zone == "blocked":
                     continue
 
-                arrival_t = turn + (2 if v.zone == "restricted" else 1)
+                arrival_t = turn + (
+                    2 if neighbor_node.zone == "restricted" else 1
+                )
 
-                if self.__check_capacity(v, arrival_t, occupancy, graph):
-                    move_cost = 0.99 if v.zone == "priority" else 1.0
-                    if v.zone == "restricted":
+                if self.__check_capacity(
+                    neighbor_node, arrival_t, occupancy, graph
+                ):
+                    move_cost = (
+                        PRIORITY_ZONE_DISCOUNT
+                        if neighbor_node.zone == "priority"
+                        else 1.0
+                    )
+                    if neighbor_node.zone == "restricted":
                         move_cost = 2.0
 
                     new_dist = dist + move_cost
-                    if new_dist < distances.get((v.name, arrival_t), math.inf):
-                        distances[(v.name, arrival_t)] = new_dist
-                        previous[(v.name, arrival_t)] = (u.name, turn)
-                        heapq.heappush(queue, (new_dist, arrival_t, v.name))
+                    if new_dist < distances.get(
+                        (neighbor_node.name, arrival_t), math.inf
+                    ):
+                        distances[(neighbor_node.name, arrival_t)] = new_dist
+                        previous[(neighbor_node.name, arrival_t)] = (
+                            current_node.name,
+                            turn,
+                        )
+                        heapq.heappush(
+                            queue, (new_dist, arrival_t, neighbor_node.name)
+                        )
 
             wait_t = turn + 1
-            if self.__check_capacity(u, wait_t, occupancy, graph):
-                new_dist = dist + CHOICE_PENALITY
-                if new_dist < distances.get((u.name, wait_t), math.inf):
-                    distances[(u.name, wait_t)] = new_dist
-                    previous[(u.name, wait_t)] = (u.name, turn)
-                    heapq.heappush(queue, (new_dist, wait_t, u.name))
+            if self.__check_capacity(current_node, wait_t, occupancy, graph):
+                new_dist = dist + WAITING_PENALTY
+                if new_dist < distances.get(
+                    (current_node.name, wait_t), math.inf
+                ):
+                    distances[(current_node.name, wait_t)] = new_dist
+                    previous[(current_node.name, wait_t)] = (
+                        current_node.name,
+                        turn,
+                    )
+                    heapq.heappush(
+                        queue, (new_dist, wait_t, current_node.name)
+                    )
 
         return {}
 
