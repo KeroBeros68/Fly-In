@@ -59,7 +59,7 @@ class Dijkstra:
                         else 1.0
                     )
                     if neighbor_node.zone == "restricted":
-                        move_cost = 2.0
+                        move_cost = 1.0
 
                     new_dist = dist + move_cost
                     if new_dist < distances.get(
