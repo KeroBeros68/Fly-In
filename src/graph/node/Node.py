@@ -1,6 +1,6 @@
 import math
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 
 class Node:
@@ -19,8 +19,7 @@ class Node:
     def __init__(
         self,
         name: str,
-        type: str,
-        pos: Tuple[int, int],
+        pos: tuple[int, int],
         zone: str,
         color: Optional[str] = None,
     ) -> None:
@@ -35,11 +34,10 @@ class Node:
             color (Optional[str], optional): Cosmetic wrapper.
         """
         self.__name: str = name
-        self.__type: str = type
-        self.__pos: Tuple[int, int] = pos
+        self.__pos: tuple[int, int] = pos
 
         self.__weight: float = math.inf
-        self.__connected_node: List[Node] = [self]
+        self.__connected_node: list[Node] = [self]
         self.__previous_node: str = ""
 
         self.__max_drones: int = 1
@@ -57,17 +55,7 @@ class Node:
         return self.__name
 
     @property
-    def type(self) -> str:
-        """
-        Gets node context logic type.
-
-        Returns:
-            str: Identifier sub typing context logic.
-        """
-        return self.__type
-
-    @property
-    def pos(self) -> Tuple[int, int]:
+    def pos(self) -> tuple[int, int]:
         """
         Retrieves positional tuple bounds.
 
@@ -125,7 +113,7 @@ class Node:
         self.__max_drones = max_drones
 
     @property
-    def connected_nodes(self) -> List["Node"]:
+    def connected_nodes(self) -> list["Node"]:
         """
         Retrieves the list of connected nodes.
 
@@ -160,7 +148,7 @@ class Node:
 
     def __repr__(self) -> str:
         res: str = (
-            f"{self.__name} {self.__type} {self.__pos} {self.__weight}"
+            f"{self.__name} {self.__pos} {self.__weight}"
             f" {self.__color} {self.__zone}"
         )
         for node in self.connected_nodes:
