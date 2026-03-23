@@ -17,7 +17,10 @@ class Dijkstra:
         self.logger = logging.getLogger("Fly-In")
 
     def process(
-        self, graph: Graph, occupancy: dict[int, dict[str, int]]
+        self,
+        graph: Graph,
+        occupancy: dict[int, dict[str, int]],
+        link_occupancy: dict[int, dict[str, int]]
     ) -> dict[int, str]:
 
         distances: dict[tuple[str, int], float] = {}
@@ -50,6 +53,12 @@ class Dijkstra:
                 arrival_t = turn + (
                     2 if neighbor_node.zone == "restricted" else 1
                 )
+
+                if not self.__check_link_capacity(
+                    current_node, neighbor_node, turn, arrival_t,
+                    link_occupancy, graph
+                ):
+                    continue
 
                 if self.__check_capacity(
                     neighbor_node, arrival_t, occupancy, graph
@@ -102,9 +111,34 @@ class Dijkstra:
             return True
 
         max_cap = getattr(node, "max_drones", 1)
-
         current_occ = occupancy.get(time, {}).get(node.name, 0)
         return current_occ < max_cap
+
+    def __check_link_capacity(
+        self,
+        from_node: Node,
+        to_node: Node,
+        start_time: int,
+        arrival_time: int,
+        link_occupancy: dict[int, dict[str, int]],
+        graph: Graph,
+    ) -> bool:
+        link_name = f"{from_node.name}-{to_node.name}"
+        reverse_link = f"{to_node.name}-{from_node.name}"
+
+        link_obj = graph.links.get(link_name) or graph.links.get(reverse_link)
+        if not link_obj:
+            return True
+
+        max_capacity = link_obj.max_drone or 1
+
+        for time in range(start_time + 1, arrival_time + 1):
+            current_occ = link_occupancy.get(time, {}).get(link_name, 0)
+            current_occ += link_occupancy.get(time, {}).get(reverse_link, 0)
+            if current_occ >= max_capacity:
+                return False
+
+        return True
 
     def __make_path(
         self,

@@ -10,18 +10,21 @@ class Simulation:
 
     def start(self, algorithm: AlgorithmProtocol, graph: Graph, nb_drone: int):
         occupancy: dict[int, dict[str, int]] = {}
+        link_occupancy: dict[int, dict[str, int]] = {}
         all_paths: dict[int, dict[int, str]] = {}
         for nb in range(nb_drone):
-            path = algorithm.process(graph, occupancy)
+            path = algorithm.process(graph, occupancy, link_occupancy)
             if not path:
-                self.logger.error(
-                    f"Drone {nb + 1} could not find a path!"
-                )
+                self.logger.error(f"Drone {nb + 1} could not find a path!")
                 continue
 
             for node_turn, node_name in path.items():
                 tour_occ = occupancy.setdefault(node_turn, {})
                 tour_occ[node_name] = tour_occ.get(node_name, 0) + 1
+
+                if node_turn > 0 and "-" in node_name:
+                    link_occ = link_occupancy.setdefault(node_turn, {})
+                    link_occ[node_name] = link_occ.get(node_name, 0) + 1
             all_paths[nb + 1] = path
 
         for drone_id, path in all_paths.items():
