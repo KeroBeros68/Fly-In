@@ -68,13 +68,13 @@ class Controller(QObject):
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
         self.simulation_engine: Simulation = Simulation()
+        self.algorithm: AlgorithmProtocol = PathfindingAlgorithm.create(
+            "dijkstra"
+        )
+
         self.map_name: str = ""
         self.graph: Graph
         self.nb_drones: int = 0
-
-        self.algorithm: AlgorithmProtocol = PathfindingAlgorithm.create(
-            "Dijkstra"
-        )
 
     def process(self) -> None:
         """
