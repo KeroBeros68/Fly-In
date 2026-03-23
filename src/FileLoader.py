@@ -18,5 +18,4 @@ class FileLoader:
                 content: str = f.read()
             return content
         except (FileNotFoundError, PermissionError) as e:
-            self.logger.error(f"File: {e}")
-            return f"File: {e}"
+            raise e

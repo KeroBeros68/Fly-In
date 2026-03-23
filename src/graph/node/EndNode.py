@@ -10,6 +10,7 @@ class EndNode(Node):
         pos: tuple[int, int],
         zone: str,
         color: Optional[str] = None,
+        max_drone: int = 1
     ) -> None:
         """
         Initializes graph components for the Node.
@@ -21,4 +22,4 @@ class EndNode(Node):
             zone (str): Contextual zone categorization.
             color (Optional[str], optional): Cosmetic wrapper.
         """
-        super().__init__(name, pos, zone, color)
+        super().__init__(name, pos, zone, color, max_drone)

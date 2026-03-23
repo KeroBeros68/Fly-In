@@ -23,6 +23,7 @@ class GraphBuilder:
             map_model.end_hub.pos,
             map_model.end_hub.zone.value,
             map_model.end_hub.color,
+            map_model.end_hub.max_drones
         )
         graph.add_node(end_node)
 
@@ -31,6 +32,7 @@ class GraphBuilder:
             map_model.start_hub.pos,
             map_model.start_hub.zone.value,
             map_model.start_hub.color,
+            map_model.start_hub.max_drones
         )
         graph.add_node(start_node)
 
@@ -40,6 +42,7 @@ class GraphBuilder:
                 hub.pos,
                 hub.zone.value,
                 hub.color,
+                hub.max_drones
             )
             graph.add_node(node)
 

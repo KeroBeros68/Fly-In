@@ -101,9 +101,7 @@ class Controller(QObject):
 
         try:
             content = self.reader.read_file(path)
-            if content.startswith("File: "):
-                self.file_error.emit(content)
-                return
+
             if content != "":
                 self.logger.info(content)
                 try:
@@ -126,6 +124,9 @@ class Controller(QObject):
         except MapError as e:
             self.file_loaded.emit(False)
             self.logger.error(f"Error loading file: {e}")
+        except (FileNotFoundError, PermissionError) as e:
+            self.logger.error(f"File: {e}")
+            self.file_error.emit(content)
 
     def launch_simulation(self) -> None:
         """

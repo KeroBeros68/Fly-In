@@ -22,6 +22,7 @@ class Node:
         pos: tuple[int, int],
         zone: str,
         color: Optional[str] = None,
+        max_drone: int = 1
     ) -> None:
         """
         Initializes graph components for the Node.
@@ -40,7 +41,7 @@ class Node:
         self.__connected_node: list[Node] = [self]
         self.__previous_node: str = ""
 
-        self.__max_drones: int = 1
+        self.__max_drones: int = max_drone
         self.__color: Optional[str] = color
         self.__zone: str = zone
 
