@@ -7,6 +7,8 @@ from PySide6.QtGui import (
     QFontDatabase,
 )
 
+from src.view.components.Button import Button
+
 
 class Page(QWidget):
     def __init__(self) -> None:
@@ -25,3 +27,34 @@ class Page(QWidget):
             if families:
                 return families[0]
         return "Arial"
+
+    def set_btn_enabled(self, btn: Button,  enabled: bool) -> None:
+        btn.setEnabled(enabled)
+        if enabled:
+            btn.setStyleSheet(self._get_enabled_button_style())
+        else:
+            btn.setStyleSheet(self._get_disabled_button_style())
+
+    def _get_disabled_button_style(self) -> str:
+        return """
+            QPushButton {
+                background-color: #333333;
+                color: #777777;
+                border: 2px solid #555555;
+                border-radius: 10px;
+            }
+        """
+
+    def _get_enabled_button_style(self) -> str:
+        return """
+            QPushButton {
+                background-color: #121212;
+                color: #00FFCC;
+                border: 2px solid #00FFCC;
+                border-radius: 10px;
+            }
+            QPushButton:hover {
+                background-color: #00FFCC;
+                color: #121212;
+            }
+        """

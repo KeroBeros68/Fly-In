@@ -1,91 +1,137 @@
-class Djikstra:
-    @staticmethod
-    def dijkstra(graph: Graph, start_node: str, end_node: str, start_time: int, controller):
-        # distances[(nom_noeud, tour)] = poids
-        distances = {(start_node, start_time): 0.0}
-        previous = {}
-        
-        # Priority Queue: (poids_cumulé, tour_actuel, nom_noeud)
-        queue = [(0.0, start_time, start_node)]
-        
-        while queue:
-            curr_weight, curr_time, curr_node = heapq.heappop(queue)
+nb_drones: 42
 
-            if curr_node == end_node:
-                return Djikstra.reconstruct_path(previous, curr_node, curr_time, start_node, start_time), curr_weight
+start_hub: start 0 0 [color=purple max_drones=42]
+hub: here_we_go_again 1 0 [color=lightbrown max_drones=3]
 
-            node_obj = graph.nodes[curr_node]
-            
-            # --- OPTION 1 : Se déplacer vers un voisin ---
-            for neighbor in node_obj.connected_nodes:
-                # Coût en tours selon le type de zone [cite: 153, 155, 156]
-                travel_cost = 2 if neighbor.zone == "restricted" else 1
-                arrival_time = curr_time + travel_cost
-                
-                # Vérification des capacités via le controller [cite: 170, 180, 182]
-                if controller.has_capacity(neighbor, arrival_time, from_node=node_obj):
-                    
-                    # Calcul du poids pour la Priority Queue (le "coût" de l'arête)
-                    weight = 1.0 if neighbor.zone != "priority" else 0.9
-                    new_weight = curr_weight + weight
-                    
-                    if new_weight < distances.get((neighbor.name, arrival_time), float('inf')):
-                        distances[(neighbor.name, arrival_time)] = new_weight
-                        previous[(neighbor.name, arrival_time)] = (curr_node, curr_time)
-                        heapq.heappush(queue, (new_weight, arrival_time, neighbor.name))
+hub: long_way_home 0 1 [zone=priority color=cyan max_drones=3]
+hub: highway_to_hell 0 2 [zone=priority color=cyan max_drones=2]
+hub: telegraph_road 0 3 [zone=priority color=cyan max_drones=1]
+hub: restricted 1 1 [zone=restricted color=red max_drones=2]
+hub: normal_road_north 2 1 [color=lightblue max_drones=1]
+hub: normal_road_join 2 2 [color=lightblue max_drones=1]
+hub: normal_road_south 2 3 [color=lightblue max_drones=1]
+hub: the_gathering 1 2 [color=orange max_drones=8]
 
-            # --- OPTION 2 : Attendre sur place (Stay in place) [cite: 188] ---
-            # Un drone peut attendre si la suite est bloquée
-            wait_time = curr_time + 1
-            if controller.has_capacity(node_obj, wait_time):
-                if curr_weight + 1.0 < distances.get((curr_node, wait_time), float('inf')):
-                    distances[(curr_node, wait_time)] = curr_weight + 1.0
-                    previous[(curr_node, wait_time)] = (curr_node, curr_time)
-                    heapq.heappush(queue, (curr_weight + 1.0, wait_time, curr_node))
+hub: choose_wisely 2 4 [color=teal max_drones=6]
+hub: pleasant_walk 1 4 [color=lime max_drones=101]
+hub: WrOnG_WaY_LoL 0 4 [zone=priority color=maroon max_drones=67]
 
-        return [], float('inf')
+hub: should_be_fast 3 0 [zone=priority color=green max_drones=6]
+hub: maybe_not 4 0 [zone=restricted color=orange]
+hub: false_good_idea 5 0 [zone=restricted color=red]
 
+hub: keep_calm 3 1 [color=yellow max_drones=9]
+hub: have_a_quantum 4 1 [color=cyan max_drones=8]
+hub: where_are_we_going 4 2 [color=teal max_drones=7]
+hub: I_think_we_re_lost 3 2 [color=blue max_drones=6]
+hub: maybe_ask_our_way 3 3 [color=violet max_drones=5]
+hub: is_there_a_light 4 3 [color=purple max_drones=4]
 
-def __continue_process(self, map_model: MapModel) -> None:
-    self.app_window.draw_graph(self.graph)
-    self.__init_simulation(map_model.nb_drones, map_model.start_hub.pos)
-    
-    start_node = "start"
-    end_node = "goal" # ou selon ton parsing
+hub: look_at_this_wall 5 1 [color=crimson max_drones=6]
+hub: it_s_a_big_one 5 3 [color=magenta max_drones=6]
+hub: is_there_a_way 5 4 [color=beige max_drones=4]
 
-    for drone in self.drone_list:
-        path, dist = Djikstra.dijkstra(self.graph, start_node, end_node, 0, self)
-        if path:
-            self.reserve_path(path) # Marque les (noeud, tour) comme occupés
-            drone.set_itinerary(path) # Donne sa feuille de route au drone
+hub: collapsed_north 6 0 [zone=restricted color=brown]
+hub: forgotten_garden 6 1 [zone=restricted color=brown]
+hub: closed_market 6 2 [zone=restricted color=brown]
+hub: unknown_street 6 3 [zone=restricted color=brown]
+hub: collapsed_south 6 4 [zone=restricted color=brown]
 
+hub: best_is_to_come 7 0 [color=lime max_drones=4]
+hub: hang_on_baby 7 2 [color=gold max_drones=42]
+hub: a_big_42_coming 8 2 [color=magenta max_drones=6]
 
-from PySide6.QtWidgets import QMainWindow, QStackedWidget, QWidget, QVBoxLayout, QPushButton, QLabel
+hub: 4tt 9 0 [color=blue max_drones=4]
+hub: tt4 11 0 [color=blue max_drones=4]
+hub: 4ff 9 1 [color=blue max_drones=4]
+hub: ff4 11 1 [color=blue max_drones=4]
+hub: 488 9 2 [color=blue max_drones=4]
+hub: 848 10 2 [color=blue max_drones=4]
+hub: 884 11 2 [color=blue max_drones=4]
+hub: bb4 11 3 [color=blue max_drones=4]
+hub: oo4 11 4 [color=blue max_drones=4]
 
-class MainView(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.stack = QStackedWidget()
-        self.setCentralWidget(self.stack)
+hub: 2tt 12 0 [color=blue max_drones=2]
+hub: t2t 13 0 [color=blue max_drones=2]
+hub: tt2 14 0 [color=blue max_drones=2]
+hub: ff2 14 1 [color=blue max_drones=2]
+hub: 288 12 2 [color=blue max_drones=2]
+hub: 828 13 2 [color=blue max_drones=2]
+hub: 882 14 2 [color=blue max_drones=2]
+hub: 2bb 12 3 [color=blue max_drones=2]
+hub: 2oo 12 4 [color=blue max_drones=2]
+hub: o2o 13 4 [color=blue max_drones=2]
+hub: oo2 14 4 [color=blue max_drones=2]
 
-        # Création des pages
-        self.page_menu = self.create_menu_page()
-        self.page_simu = self.create_simu_page()
+hub: we_were_here 15 2 [color=magenta max_drones=2]
+end_hub: goal 16 2 [color=rainbow max_drones=42]
 
-        # Ajout au stack
-        self.stack.addWidget(self.page_menu) # Index 0
-        self.stack.addWidget(self.page_simu) # Index 1
+connection: start-here_we_go_again
+connection: here_we_go_again-long_way_home
+connection: here_we_go_again-restricted
+connection: here_we_go_again-normal_road_north
+connection: here_we_go_again-normal_road_south
+connection: long_way_home-highway_to_hell
+connection: highway_to_hell-telegraph_road
+connection: telegraph_road-the_gathering
+connection: restricted-the_gathering
+connection: normal_road_north-normal_road_join
+connection: normal_road_join-normal_road_south
+connection: normal_road_join-the_gathering
+connection: the_gathering-pleasant_walk
 
-    def create_menu_page(self):
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        btn = QPushButton("Lancer la Simulation")
-        btn.clicked.connect(lambda: self.stack.setCurrentIndex(1)) # Change vers page 1
-        layout.addWidget(QLabel("MENU PRINCIPAL"))
-        layout.addWidget(btn)
-        return widget
+connection: choose_wisely-pleasant_walk
+connection: pleasant_walk-WrOnG_WaY_LoL
 
-    def create_simu_page(self):
-        widget = QWidget()
-        # ... (ton code de vue avec QGraphicsView)
-        return widget
+connection: choose_wisely-should_be_fast
+connection: should_be_fast-maybe_not
+connection: maybe_not-false_good_idea
+connection: false_good_idea-look_at_this_wall
+
+connection: choose_wisely-keep_calm
+connection: keep_calm-have_a_quantum
+connection: have_a_quantum-where_are_we_going
+connection: where_are_we_going-I_think_we_re_lost
+connection: I_think_we_re_lost-maybe_ask_our_way
+connection: maybe_ask_our_way-is_there_a_light
+connection: is_there_a_light-look_at_this_wall
+
+connection: collapsed_north-forgotten_garden
+connection: forgotten_garden-closed_market
+connection: closed_market-unknown_street
+connection: unknown_street-collapsed_south
+connection: collapsed_north-closed_market
+connection: collapsed_north-unknown_street
+connection: closed_market-collapsed_south
+connection: forgotten_garden-collapsed_south
+
+connection: look_at_this_wall-it_s_a_big_one
+connection: it_s_a_big_one-is_there_a_way
+connection: is_there_a_way-best_is_to_come
+connection: best_is_to_come-hang_on_baby
+connection: hang_on_baby-a_big_42_coming
+
+connection: 4tt-4ff
+connection: tt4-ff4
+connection: 4ff-488
+connection: ff4-884
+connection: 488-848
+connection: 848-884
+connection: 884-bb4
+connection: bb4-oo4
+connection: a_big_42_coming-488
+
+connection: 2tt-t2t
+connection: t2t-tt2
+connection: tt2-ff2
+connection: ff2-882
+connection: 882-828
+connection: 828-288
+connection: 288-2bb
+connection: 2bb-2oo
+connection: 2oo-o2o
+connection: o2o-oo2
+connection: 882-we_were_here
+
+connection: a_big_42_coming-we_were_here
+connection: we_were_here-goal

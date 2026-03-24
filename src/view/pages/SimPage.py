@@ -60,7 +60,7 @@ class SimPage(Page):
         self.log_console.append(
             "Fly-In system initialized... Ready for takeoff."
         )
-        self.set_play_enabled(False)
+        self.set_btn_enabled(self.btn_play, False)
 
         max_turn = max(
             [max(path.keys()) for path in self.allpaths.values() if path] + [0]
@@ -98,40 +98,10 @@ class SimPage(Page):
                 self.log_move(str(i), string)
 
         QTimer.singleShot(
-            (max_turn + 1) * 1000, lambda: self.set_play_enabled(True)
+            (max_turn + 1) * 1000,
+            lambda: self.set_btn_enabled(self.btn_play, True),
         )
-        self.set_play_enabled(True)
-
-    def _get_disabled_button_style(self) -> str:
-        return """
-            QPushButton {
-                background-color: #333333;
-                color: #777777;
-                border: 2px solid #555555;
-                border-radius: 10px;
-            }
-        """
-
-    def _get_enabled_button_style(self) -> str:
-        return """
-            QPushButton {
-                background-color: #121212;
-                color: #00FFCC;
-                border: 2px solid #00FFCC;
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #00FFCC;
-                color: #121212;
-            }
-        """
-
-    def set_play_enabled(self, enabled: bool) -> None:
-        self.btn_play.setEnabled(enabled)
-        if enabled:
-            self.btn_play.setStyleSheet(self._get_enabled_button_style())
-        else:
-            self.btn_play.setStyleSheet(self._get_disabled_button_style())
+        self.set_btn_enabled(self.btn_play, True)
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
         widget = QWidget()

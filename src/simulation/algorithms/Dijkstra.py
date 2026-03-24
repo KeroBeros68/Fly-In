@@ -8,10 +8,10 @@ from src.graph.node.EndNode import EndNode
 from src.graph.node.StartNode import StartNode
 
 
-WAITING_PENALTY: float = 1.05  # Penalty to discourage waiting
+WAITING_PENALTY: float = 1.10  # Penalty to discourage waiting
 MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
-PRIORITY_ZONE_DISCOUNT: float = 0.99  # Small discount for priority zones
-RESTRICTED_ZONE_COST: float = 1.5  # Cost penalty for restricted zones
+PRIORITY_ZONE_DISCOUNT: float = 0.90  # Small discount for priority zones
+RESTRICTED_ZONE_COST: float = 2  # Cost penalty for restricted zones
 
 
 class Dijkstra:

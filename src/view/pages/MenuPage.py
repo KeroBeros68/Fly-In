@@ -53,37 +53,6 @@ class MenuPage(Page):
     def __init__(self) -> None:
         super().__init__()
 
-    def _get_disabled_button_style(self) -> str:
-        return """
-            QPushButton {
-                background-color: #333333;
-                color: #777777;
-                border: 2px solid #555555;
-                border-radius: 10px;
-            }
-        """
-
-    def _get_enabled_button_style(self) -> str:
-        return """
-            QPushButton {
-                background-color: #121212;
-                color: #00FFCC;
-                border: 2px solid #00FFCC;
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #00FFCC;
-                color: #121212;
-            }
-        """
-
-    def set_start_enabled(self, enabled: bool) -> None:
-        self.btn_start.setEnabled(enabled)
-        if enabled:
-            self.btn_start.setStyleSheet(self._get_enabled_button_style())
-        else:
-            self.btn_start.setStyleSheet(self._get_disabled_button_style())
-
     def create_page(self, stack: QStackedWidget) -> QWidget:
         widget = QWidget()
         layout = QVBoxLayout(widget)

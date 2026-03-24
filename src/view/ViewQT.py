@@ -20,7 +20,7 @@ logger = logging.getLogger("Fly-In")
 
 class ViewQT(QMainWindow):
 
-    def __init__(self, controller: 'Controller') -> None:
+    def __init__(self, controller: "Controller") -> None:
         super().__init__()
 
         self.controller = controller
@@ -39,7 +39,9 @@ class ViewQT(QMainWindow):
         self.menu = MenuPage()
         self.menu_page = self.menu.create_page(self.stack)
         self.menu.file_selected.connect(self.controller.load_file)
-        self.controller.file_loaded.connect(self.menu.set_start_enabled)
+        self.controller.file_loaded.connect(
+            lambda: self.menu.set_btn_enabled(self.menu.btn_start, True)
+        )
         self.controller.file_error.connect(
             lambda msg: QMessageBox.critical(self, "Erreur", msg)
         )
