@@ -55,11 +55,6 @@ class SimPage(Page):
         if not self.allpaths:
             return
         self.log_remove()
-        for _ in range(7):
-            self.log_console.append("\n")
-        self.log_console.append(
-            "Fly-In system initialized... Ready for takeoff."
-        )
         self.set_btn_enabled(self.btn_play, False)
 
         max_turn = max(
@@ -73,6 +68,7 @@ class SimPage(Page):
         for i in range(max_turn + 1):
             string = ""
             delay = i * 1000
+            turn_move = {}
             for drone_id, path in self.allpaths.items():
                 path_node = path.get(i, None)
                 if path_node:
@@ -86,22 +82,27 @@ class SimPage(Page):
                         x1, y1 = self.graph.nodes[path_node].pos
                         x = x1
                         y = y1
-                    QTimer.singleShot(
-                        delay,
-                        lambda did=drone_id, x=x, y=y: self._animate_drone(
-                            self.drone_list[did],
-                            x,
-                            y,
-                        ),
-                    )
-            if string:
-                self.log_move(str(i), string)
+
+                    turn_move[drone_id] = (x, y)
+
+            QTimer.singleShot(
+                delay,
+                lambda turn_move=turn_move, i=i, string=string:
+                self.__log_and_animate(
+                    turn_move, i, string
+                ),
+            )
 
         QTimer.singleShot(
             (max_turn + 1) * 1000,
             lambda: self.set_btn_enabled(self.btn_play, True),
         )
-        self.set_btn_enabled(self.btn_play, True)
+
+    def __log_and_animate(
+        self, turn_move: dict[int, tuple[int, int]], i: int, string: str
+    ) -> None:
+        self._animate_drone(turn_move)
+        self.log_move(str(i), string)
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
         widget = QWidget()
@@ -174,6 +175,7 @@ class SimPage(Page):
         )
 
         log_container.setFixedHeight(300)
+        log_container.setFixedWidth(1080)
         log_container.setContentsMargins(10, 10, 10, 10)
 
         overlay_layout.addWidget(self.btn_play)
@@ -186,11 +188,7 @@ class SimPage(Page):
         main_layout.addWidget(view)
 
         self.log_remove()
-        for _ in range(7):
-            self.log_console.append("\n")
-        self.log_console.append(
-            "Fly-In system initialized... Ready for takeoff."
-        )
+
         return widget
 
     def draw_graph(self, graph: Graph) -> None:
@@ -211,8 +209,8 @@ class SimPage(Page):
             ):
                 x1, y1 = node_positions[names[0]]
                 x2, y2 = node_positions[names[1]]
-                pen_line = QPen(QColor("#e2e8f0"))
-                pen_line.setWidth(2)
+                pen_line = QPen(QColor("grey"))
+                pen_line.setWidth(3)
                 scene.addLine(
                     x1 * SCALE,
                     y1 * SCALE,
@@ -238,7 +236,7 @@ class SimPage(Page):
                 QBrush(QColor(node_color)),
             )
 
-            text = scene.addText(node.name)
+            text = scene.addText(f"{node.name}: {node.max_drones}")
             text.setDefaultTextColor("white")
             text.setPos(x - OFFSET, y - OFFSET - 25)
 
@@ -260,22 +258,30 @@ class SimPage(Page):
 
         self.scene.addItem(self.drone_list[id])
 
-    def _animate_drone(self, drone: Drone, x, y) -> None:
-        animation = QPropertyAnimation(drone, b"position")
-        animation.setDuration(800)
-        animation.setEndValue(
-            QPointF(x * SCALE - OFFSET / 2, y * SCALE - OFFSET / 2)
-        )
-        animation.start()
-        self.animations.append(animation)
+    def _animate_drone(self, turn_move: dict[int, tuple[int, int]]) -> None:
+        for drone, drone_move in turn_move.items():
+            x, y = drone_move
+            animation = QPropertyAnimation(self.drone_list[drone], b"position")
+            animation.setDuration(800)
+            animation.setEndValue(
+                QPointF(x * SCALE - OFFSET / 2, y * SCALE - OFFSET / 2)
+            )
+            animation.start()
+            self.animations.append(animation)
 
     def log_move(self, tour: str, texte: str) -> None:
+        self.log_console.append("")
         self.log_console.append(
-            f"<b style='color:white;'>[TOUR {tour}]</b> : {texte}\n"
+            f"<b style='color:white;'>[TOUR {tour}]</b> : {texte}"
         )
 
     def log_remove(self) -> None:
         self.log_console.clear()
+        for _ in range(7):
+            self.log_console.append("\n")
+        self.log_console.append(
+            "Fly-In system initialized... Ready for takeoff."
+        )
 
     def _scroll_log_to_bottom(self) -> None:
         sb = self.log_console.verticalScrollBar()

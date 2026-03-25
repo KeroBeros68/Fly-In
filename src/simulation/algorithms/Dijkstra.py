@@ -8,10 +8,10 @@ from src.graph.node.EndNode import EndNode
 from src.graph.node.StartNode import StartNode
 
 
-WAITING_PENALTY: float = 1.10  # Penalty to discourage waiting
+WAITING_PENALTY: float = 0.95  # Penalty to discourage waiting
 MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
-PRIORITY_ZONE_DISCOUNT: float = 0.90  # Small discount for priority zones
-RESTRICTED_ZONE_COST: float = 2  # Cost penalty for restricted zones
+PRIORITY_ZONE_DISCOUNT: float = 0.80  # Small discount for priority zones
+RESTRICTED_ZONE_COST: float = 1.5  # Cost penalty for restricted zones
 
 
 class Dijkstra:
@@ -33,6 +33,7 @@ class Dijkstra:
 
         queue: list[tuple[float, int, str]] = [(0.0, 0, start_node.name)]
         distances[(start_node.name, 0)] = 0.0
+        traversed_node = []
 
         while queue:
             distance, turn, current_node_name = heapq.heappop(queue)
@@ -53,7 +54,10 @@ class Dijkstra:
                 continue
 
             for neighbor_node in current_node.connected_nodes:
-                if neighbor_node.name == current_node.name:
+                if (
+                    neighbor_node.name == current_node.name
+                    or neighbor_node.name in traversed_node
+                ):
                     continue
                 if neighbor_node.zone == "blocked":
                     continue
@@ -97,6 +101,7 @@ class Dijkstra:
                             queue,
                             (new_distance, arrival_t, neighbor_node.name),
                         )
+                        traversed_node.append(current_node_name)
 
             wait_t = turn + 1
             if self.__check_capacity(current_node, wait_t, occupancy, graph):
