@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
     QGraphicsView,
     QHBoxLayout,
     QLabel,
+    QSizePolicy,
     QStackedWidget,
     QTextEdit,
     QWidget,
@@ -37,6 +38,7 @@ class SimPage(Page):
         self.font_family = self._load_fonts()
         self.graph: Graph | None = None
         self.allpaths: dict[int, dict[int, str]] = {}
+        self.metrics: dict[str, str] = {}
         self.title_label: QLabel | None = None
         self.drone_list: dict[int, Drone] = {}
         self.animations: list = []
@@ -50,6 +52,9 @@ class SimPage(Page):
 
     def _load_sim(self, allpaths: dict[int, dict[int, str]]) -> None:
         self.allpaths = allpaths
+
+    def _load_metrics(self, metrics: dict[str, str]) -> None:
+        self.metrics = metrics
 
     def _read_sim(self) -> None:
         if not self.allpaths:
@@ -97,6 +102,7 @@ class SimPage(Page):
             (max_turn + 1) * 1000,
             lambda: self.set_btn_enabled(self.btn_play, True),
         )
+        self.write_metrics()
 
     def __log_and_animate(
         self, turn_move: dict[int, tuple[int, int]], i: int, string: str
@@ -113,7 +119,13 @@ class SimPage(Page):
         btn_back = Button(
             "<--", 50, 50, "#be123c", "#121212", self.font_family
         )
-        btn_back.clicked.connect(lambda: stack.setCurrentIndex(0))
+
+        def __go_back() -> None:
+            self.log_remove()
+            self.remove_metrics()
+            stack.setCurrentIndex(0)
+
+        btn_back.clicked.connect(__go_back)
 
         graph_name = (
             self.graph.name if self.graph is not None else "Simulation"
@@ -140,9 +152,8 @@ class SimPage(Page):
         self.btn_play.clicked.connect(lambda: self._read_sim())
 
         log_container = QWidget()
-        log_container_layout = QVBoxLayout(log_container)
+        log_container_layout = QHBoxLayout(log_container)
         log_container_layout.setContentsMargins(5, 5, 5, 5)
-        log_container_layout.addStretch()
 
         self.log_console = QTextEdit()
         self.log_console.setReadOnly(True)
@@ -163,7 +174,24 @@ class SimPage(Page):
             self._scroll_log_to_bottom
         )
 
-        log_container_layout.addWidget(self.log_console)
+        self.metrics_console = QTextEdit()
+        self.metrics_console.setReadOnly(True)
+        self.metrics_console.setFixedHeight(280)
+
+        self.metrics_console.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: transparent;
+                color: #00FFCC;
+                border: none;
+                font-family: 'Consolas';
+                margin: 50px
+            }
+        """
+        )
+
+        log_container_layout.addWidget(self.log_console, stretch=2)
+        log_container_layout.addWidget(self.metrics_console, stretch=1)
 
         log_container.setStyleSheet(
             """
@@ -175,7 +203,10 @@ class SimPage(Page):
         )
 
         log_container.setFixedHeight(300)
-        log_container.setFixedWidth(1080)
+        log_container.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed
+        )
         log_container.setContentsMargins(10, 10, 10, 10)
 
         overlay_layout.addWidget(self.btn_play)
@@ -282,6 +313,14 @@ class SimPage(Page):
         self.log_console.append(
             "Fly-In system initialized... Ready for takeoff."
         )
+
+    def write_metrics(self) -> None:
+        self.remove_metrics()
+        for title, metrics in self.metrics.items():
+            self.metrics_console.append(f"{title}: {metrics}")
+
+    def remove_metrics(self) -> None:
+        self.metrics_console.clear()
 
     def _scroll_log_to_bottom(self) -> None:
         sb = self.log_console.verticalScrollBar()

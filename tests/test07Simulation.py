@@ -81,7 +81,7 @@ class TestSimulation:
     }
 
     def test_launch_simulation(self) -> None:
-        allpaths, _ = self.simulation.start(Dijkstra(), self.graph, 5)
+        allpaths, _, _ = self.simulation.start(Dijkstra(), self.graph, 5)
         assert allpaths == {
             1: {0: "start", 1: "hub1", 2: "hub1-hub2", 3: "hub2", 4: "goal"},
             2: {0: "start", 2: "hub1", 3: "hub1-hub2", 4: "hub2", 5: "goal"},

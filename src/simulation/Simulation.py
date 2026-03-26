@@ -10,7 +10,7 @@ class Simulation:
 
     def start(
         self, algorithm: AlgorithmProtocol, graph: Graph, number_of_drones: int
-    ) -> tuple[dict[int, dict[int, str]], list[str]]:
+    ) -> tuple[dict[int, dict[int, str]], list[str], dict[str, str]]:
         occupancy: dict[int, dict[str, int]] = {}
         link_occupancy: dict[int, dict[str, int]] = {}
         all_paths: dict[int, dict[int, str]] = {}
@@ -37,7 +37,7 @@ class Simulation:
         metrics = self._compute_metrics(all_paths)
         self.logger.info(metrics)
 
-        return all_paths, output_lines
+        return all_paths, output_lines, metrics
 
     def _format_output(
         self, all_paths: dict[int, dict[int, str]]

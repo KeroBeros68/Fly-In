@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from typing import Any
 
 import pytest
@@ -11,7 +12,7 @@ from src.parsing.errors.MapErrors import MapError
 
 # Une seule QApplication par session de tests (PySide6 l'exige)
 @pytest.fixture(scope="session")
-def qt_app():
+def qt_app() -> Generator[Any, Any, Any]:
     app = QApplication.instance() or QApplication([])
     yield app
 
@@ -69,6 +70,7 @@ class TestController:
         self.engine.start.return_value = (
             {1: {0: "start", 1: "goal"}},
             ["D1-goal"],
+            {},
         )
 
         loaded: list[bool] = []
@@ -124,6 +126,7 @@ class TestController:
         self.engine.start.return_value = (
             all_paths,
             ["D1-goal D2-goal"],
+            {},
         )
 
         sim_results: list = []
