@@ -2,6 +2,7 @@ import logging
 
 from PySide6.QtWidgets import (
     QGraphicsScene,
+    QGraphicsTextItem,
     QGraphicsView,
     QHBoxLayout,
     QLabel,
@@ -49,6 +50,7 @@ class SimPage(Page):
         self.title_label: QLabel | None = None
         self.drone_list: dict[int, Drone] = {}
         self.animations: list[QPropertyAnimation] = []
+        self.node_labels: dict[str, tuple[QGraphicsTextItem, int]] = {}
 
     def _load_graph(self, graph: Graph) -> None:
         """
@@ -150,6 +152,26 @@ class SimPage(Page):
         """
         self._animate_drone(turn_move)
         self.log_move(str(i), string)
+        self._update_node_labels(i)
+
+    def _update_node_labels(self, turn: int) -> None:
+        """Updates each node's occupancy label for the given turn."""
+        occ: dict[str, int] = {}
+        for path in self.allpaths.values():
+            past_keys = [key for key in path if key <= turn]
+            if not past_keys:
+                continue
+            pos = path[max(past_keys)]
+            if pos and "-" not in pos:
+                occ[pos] = occ.get(pos, 0) + 1
+
+        for node_name, (text_item, max_drones) in self.node_labels.items():
+            current = occ.get(node_name, 0)
+            text_item.setPlainText(f"{node_name}: {current}/{max_drones}")
+            color = (
+                "red" if current >= max_drones and max_drones > 0 else "white"
+            )
+            text_item.setDefaultTextColor(QColor(color))
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
         """
@@ -322,9 +344,10 @@ class SimPage(Page):
                 QBrush(QColor(node_color)),
             )
 
-            text = scene.addText(f"{node.name}: {node.max_drones}")
+            text = scene.addText(f"{node.name}: 0/{node.max_drones}")
             text.setDefaultTextColor("white")
             text.setPos(x - OFFSET, y - OFFSET - 25)
+            self.node_labels[node.name] = (text, node.max_drones)
 
         for node in graph.nodes.values():
             __draw_hub(node)

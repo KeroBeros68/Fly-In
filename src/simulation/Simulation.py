@@ -52,10 +52,22 @@ class Simulation:
                 tour_occ[node_name] = tour_occ.get(node_name, 0) + 1
 
                 # Node names containing "-" represent in-transit positions on
-                # a link
+                # a link (2-turn restricted-zone transit)
                 if node_turn > 0 and "-" in node_name:
                     link_occ = link_occupancy.setdefault(node_turn, {})
                     link_occ[node_name] = link_occ.get(node_name, 0) + 1
+                elif node_turn > 0 and "-" not in node_name:
+                    # 1-turn direct transition: record the link at arrival
+                    # turn so __check_link_capacity can detect conflicts
+                    prev_name = path.get(node_turn - 1, "")
+                    if (
+                        prev_name
+                        and prev_name != node_name
+                        and "-" not in prev_name
+                    ):
+                        link_occ = link_occupancy.setdefault(node_turn, {})
+                        lk = f"{prev_name}-{node_name}"
+                        link_occ[lk] = link_occ.get(lk, 0) + 1
             all_paths[nb + 1] = path
 
         for drone_id, path in all_paths.items():

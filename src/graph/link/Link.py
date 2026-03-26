@@ -11,7 +11,7 @@ class Link:
         simultaneously.
     """
 
-    def __init__(self, name: str, max_links: Optional[int]) -> None:
+    def __init__(self, name: str, max_links: Optional[int] = 1) -> None:
         """
         Initializes a Link between two nodes.
 
