@@ -126,7 +126,7 @@ class Controller(QObject):
             self.logger.error(f"Error loading file: {e}")
         except (FileNotFoundError, PermissionError) as e:
             self.logger.error(f"File: {e}")
-            self.file_error.emit(content)
+            self.file_error.emit(str(e))
 
     def launch_simulation(self) -> None:
         """
