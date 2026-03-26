@@ -9,6 +9,6 @@ class TestLoader:
     def test_no_file(self) -> None:
         try:
             self.loader.read_file("")
-            pytest.fail("INVALID[ Add same Node ]")
+            pytest.fail("INVALID[ No file ]")
         except FileNotFoundError:
             pass

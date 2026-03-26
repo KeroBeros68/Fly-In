@@ -32,14 +32,14 @@ class Simulation:
         for drone_id, path in all_paths.items():
             self.logger.info(f"{drone_id}: {path}")
 
-        output_lines = self.__format_output(all_paths)
+        output_lines = self._format_output(all_paths)
         self.logger.info(output_lines)
-        metrics = self.__compute_metrics(all_paths)
+        metrics = self._compute_metrics(all_paths)
         self.logger.info(metrics)
 
         return all_paths, output_lines
 
-    def __format_output(
+    def _format_output(
         self, all_paths: dict[int, dict[int, str]]
     ) -> list[str]:
         max_turn = max(max(path.keys()) for path in all_paths.values())
@@ -59,7 +59,7 @@ class Simulation:
 
         return output_lines
 
-    def __compute_metrics(self, all_paths: dict[int, dict[int, str]]) -> dict:
+    def _compute_metrics(self, all_paths: dict[int, dict[int, str]]) -> dict:
         total_turns = max(max(path.keys()) for path in all_paths.values())
         total_drones = len(all_paths)
         total_moves = sum(

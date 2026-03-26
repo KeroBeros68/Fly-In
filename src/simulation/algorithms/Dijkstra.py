@@ -8,7 +8,7 @@ from src.graph.node.EndNode import EndNode
 from src.graph.node.StartNode import StartNode
 
 
-WAITING_DISCOUNT: float = 0.95  # Penalty to discourage waiting
+WAITING_DISCOUNT: float = 0.95  # Discount to encourage/discourage waiting
 MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
 PRIORITY_ZONE_DISCOUNT: float = 0.80  # Small discount for priority zones
 RESTRICTED_ZONE_COST: float = 1.5  # Cost penalty for restricted zones
