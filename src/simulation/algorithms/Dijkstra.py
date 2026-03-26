@@ -8,7 +8,7 @@ from src.graph.node.EndNode import EndNode
 from src.graph.node.StartNode import StartNode
 
 
-WAITING_PENALTY: float = 0.95  # Penalty to discourage waiting
+WAITING_DISCOUNT: float = 0.95  # Penalty to discourage waiting
 MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
 PRIORITY_ZONE_DISCOUNT: float = 0.80  # Small discount for priority zones
 RESTRICTED_ZONE_COST: float = 1.5  # Cost penalty for restricted zones
@@ -105,7 +105,7 @@ class Dijkstra:
 
             wait_t = turn + 1
             if self.__check_capacity(current_node, wait_t, occupancy, graph):
-                new_distance = distance + WAITING_PENALTY
+                new_distance = distance + WAITING_DISCOUNT
                 if new_distance < distances.get(
                     (current_node.name, wait_t), math.inf
                 ):
