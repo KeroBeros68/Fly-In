@@ -101,6 +101,14 @@ class Dijkstra:
                     2 if neighbor_node.zone == "restricted" else 1
                 )  # Restricted zones cost an extra turn to traverse
 
+                # A drone cannot wait on a link mid-transit: only enter if
+                # the destination node is guaranteed free at arrival.
+                # If it is full, the drone must wait at the source instead.
+                if not self.__check_capacity(
+                    neighbor_node, arrival_t, occupancy, graph
+                ):
+                    continue
+
                 if not self.__check_link_capacity(
                     current_node,
                     neighbor_node,
@@ -111,32 +119,29 @@ class Dijkstra:
                 ):
                     continue
 
-                if self.__check_capacity(
-                    neighbor_node, arrival_t, occupancy, graph
-                ):
-                    if neighbor_node.zone == "priority":
-                        move_cost = PRIORITY_ZONE_DISCOUNT
-                    elif neighbor_node.zone == "restricted":
-                        move_cost = RESTRICTED_ZONE_COST
-                    else:
-                        move_cost = 1.0
+                if neighbor_node.zone == "priority":
+                    move_cost = PRIORITY_ZONE_DISCOUNT
+                elif neighbor_node.zone == "restricted":
+                    move_cost = RESTRICTED_ZONE_COST
+                else:
+                    move_cost = 1.0
 
-                    new_distance = distance + move_cost
-                    if new_distance < distances.get(
-                        (neighbor_node.name, arrival_t), math.inf
-                    ):
-                        distances[(neighbor_node.name, arrival_t)] = (
-                            new_distance
-                        )
-                        previous[(neighbor_node.name, arrival_t)] = (
-                            current_node.name,
-                            turn,
-                        )
-                        heapq.heappush(
-                            queue,
-                            (new_distance, arrival_t, neighbor_node.name),
-                        )
-                        traversed_node.append(current_node_name)
+                new_distance = distance + move_cost
+                if new_distance < distances.get(
+                    (neighbor_node.name, arrival_t), math.inf
+                ):
+                    distances[(neighbor_node.name, arrival_t)] = (
+                        new_distance
+                    )
+                    previous[(neighbor_node.name, arrival_t)] = (
+                        current_node.name,
+                        turn,
+                    )
+                    heapq.heappush(
+                        queue,
+                        (new_distance, arrival_t, neighbor_node.name),
+                    )
+                    traversed_node.append(current_node_name)
 
             wait_t = turn + 1
             if self.__check_capacity(current_node, wait_t, occupancy, graph):
