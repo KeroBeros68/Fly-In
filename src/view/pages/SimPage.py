@@ -156,17 +156,17 @@ class SimPage(Page):
 
     def _update_node_labels(self, turn: int) -> None:
         """Updates each node's occupancy label for the given turn."""
-        occ: dict[str, int] = {}
+        self.occ: dict[str, int] = {}
         for path in self.allpaths.values():
             past_keys = [key for key in path if key <= turn]
             if not past_keys:
                 continue
             pos = path[max(past_keys)]
             if pos and "-" not in pos:
-                occ[pos] = occ.get(pos, 0) + 1
+                self.occ[pos] = self.occ.get(pos, 0) + 1
 
         for node_name, (text_item, max_drones) in self.node_labels.items():
-            current = occ.get(node_name, 0)
+            current = self.occ.get(node_name, 0)
             text_item.setPlainText(f"{node_name}: {current}/{max_drones}")
             color = (
                 "red" if current >= max_drones and max_drones > 0 else "white"
@@ -305,6 +305,10 @@ class SimPage(Page):
 
         scene: QGraphicsScene = self.scene
         scene.clear()
+
+        self.node_labels = {}
+        self.drone_list = {}
+        self.animations = []
 
         node_positions = {node.name: node.pos for node in graph.nodes.values()}
 
