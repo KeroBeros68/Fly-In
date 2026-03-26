@@ -42,22 +42,26 @@ class Simulation:
     def _format_output(
         self, all_paths: dict[int, dict[int, str]]
     ) -> list[str]:
-        max_turn = max(max(path.keys()) for path in all_paths.values())
-        output_lines = []
+        try:
+            max_turn = max(max(path.keys()) for path in all_paths.values())
+            output_lines = []
 
-        for turn in range(1, max_turn + 1):
-            movements = []
-            for drone_id, path in all_paths.items():
-                if turn in path:
-                    current_pos = path[turn]
-                    prev_pos = path.get(turn - 1, "")
-                    if current_pos != prev_pos:
-                        movements.append(f"D{drone_id}-{current_pos}")
+            for turn in range(1, max_turn + 1):
+                movements = []
+                for drone_id, path in all_paths.items():
+                    if turn in path:
+                        current_pos = path[turn]
+                        prev_pos = path.get(turn - 1, "")
+                        if current_pos != prev_pos:
+                            movements.append(f"D{drone_id}-{current_pos}")
 
-            if movements:
-                output_lines.append(" ".join(movements))
+                if movements:
+                    output_lines.append(" ".join(movements))
 
-        return output_lines
+            return output_lines
+        except (ValueError, AttributeError) as e:
+            self.logger.warning(f"Format output error: {str(e)}")
+            return []
 
     def _compute_metrics(self, all_paths: dict[int, dict[int, str]]) -> dict:
         total_turns = max(max(path.keys()) for path in all_paths.values())

@@ -1,3 +1,5 @@
+import pytest
+
 from src.GraphBuilder import GraphBuilder
 from src.graph.Graph import Graph
 from src.parsing.models.ConnectionModel import ConnectionModel
@@ -91,6 +93,10 @@ class TestSimulation:
     def test_format_output_correct(self) -> None:
         res = self.simulation._format_output(self.allpaths)
         assert res[0] == "D1-hub1"
+
+    def test_format_output_empty_path(self) -> None:
+        with pytest.raises(ValueError):
+            self.simulation._compute_metrics({})
 
     def test_compute_metrics(self) -> None:
         res = self.simulation._compute_metrics(self.allpaths)
