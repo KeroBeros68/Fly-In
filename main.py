@@ -14,6 +14,7 @@ from src.utils.logger import setup_logger
 
 TERMINAL: list[str] = ["gnome-terminal", "--"]
 # TERMINAL: list[str] = ["konsole", "-e"]
+ALGORITHM: str = "dijkstra"
 
 
 def main() -> None:
@@ -59,7 +60,7 @@ def main() -> None:
             FileLoader(),
             GraphBuilder(),
             MapParser(),
-            PathfindingAlgorithm.create("dijkstra"),
+            PathfindingAlgorithm.create(ALGORITHM),
             Simulation(),
         )
         controller.process()
