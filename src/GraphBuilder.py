@@ -10,10 +10,29 @@ from src.parsing.models.MapModel import MapModel
 
 
 class GraphBuilder:
+    """
+    Builds a Graph instance from a parsed MapModel.
+
+    Converts the abstract model data (hubs, connections) into
+    concrete Node and Link objects within a Graph.
+    """
+
     def __init__(self) -> None:
+        """Initializes the GraphBuilder with a logger."""
         self.logger = logging.getLogger("Fly-In")
 
     def build(self, map_model: MapModel, map_name: str) -> Graph:
+        """
+        Constructs and returns a Graph from the given map model.
+
+        Args:
+            map_model (MapModel): The parsed map data containing hubs and
+            connections.
+            map_name (str): The name to assign to the resulting graph.
+
+        Returns:
+            Graph: A fully connected graph with nodes and links.
+        """
         graph = Graph()
         graph.name = map_name
         hubs = map_model.hubs.copy()

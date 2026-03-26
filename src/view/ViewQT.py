@@ -19,8 +19,21 @@ logger = logging.getLogger("Fly-In")
 
 
 class ViewQT(QMainWindow):
+    """
+    The main application window managing the page stack
+    (menu and simulation views).
+
+    Wires Qt signals between the controller and the page components.
+    """
 
     def __init__(self, controller: "Controller") -> None:
+        """
+        Initializes the main window, creates pages, and connects all signals.
+
+        Args:
+            controller (Controller): The application controller providing
+            signals.
+        """
         super().__init__()
 
         self.controller = controller

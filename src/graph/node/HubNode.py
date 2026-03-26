@@ -4,6 +4,8 @@ from src.graph.node.Node import Node
 
 
 class HubNode(Node):
+    """An intermediate hub node that drones pass through on their route."""
+
     def __init__(
         self,
         name: str,
@@ -13,13 +15,14 @@ class HubNode(Node):
         max_drone: int = 1
     ) -> None:
         """
-        Initializes graph components for the Node.
+        Initializes the HubNode.
 
         Args:
-            name (str): Nominal label string.
-            type (str): Sub logic category identifier.
-            pos (Tuple[int, int]): Fixed location setup mapping.
-            zone (str): Contextual zone categorization.
-            color (Optional[str], optional): Cosmetic wrapper.
+            name (str): Unique name identifier for the node.
+            pos (Tuple[int, int]): Cartesian (x, y) position on the map.
+            zone (str): Zone category this node belongs to.
+            color (Optional[str], optional): Optional rendering color.
+            max_drone (int, optional): Maximum simultaneous drones. Defaults
+            to 1.
         """
         super().__init__(name, pos, zone, color, max_drone)

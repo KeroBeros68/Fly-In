@@ -8,14 +8,29 @@ from src.graph.node.EndNode import EndNode
 from src.graph.node.StartNode import StartNode
 
 
-WAITING_DISCOUNT: float = 0.95  # Discount to encourage/discourage waiting
-MAX_SIMULATION_TURNS: int = 200  # Safety limit for infinite loops
-PRIORITY_ZONE_DISCOUNT: float = 0.80  # Small discount for priority zones
-RESTRICTED_ZONE_COST: float = 1.5  # Cost penalty for restricted zones
+WAITING_DISCOUNT: float = (
+    0.99  # Cost added when a drone waits at its current node
+)
+MAX_SIMULATION_TURNS: int = 200  # Hard cap on turns to prevent infinite loops
+PRIORITY_ZONE_DISCOUNT: float = (
+    0.80  # Reduced move cost to favour priority zones
+)
+RESTRICTED_ZONE_COST: float = (
+    1.5  # Increased move cost to penalise restricted zones
+)
 
 
 class Dijkstra:
+    """Time-expanded Dijkstra pathfinding algorithm.
+
+    Operates on a space-time graph where each state is a ``(node, turn)``
+    pair.  This allows the algorithm to respect dynamic node and link
+    capacity constraints that vary per turn, enabling multi-drone routing
+    without collision.
+    """
+
     def __init__(self) -> None:
+        """Initialize the Dijkstra algorithm with a named logger."""
         self.logger = logging.getLogger("Fly-In")
 
     def process(
@@ -24,21 +39,41 @@ class Dijkstra:
         occupancy: dict[int, dict[str, int]],
         link_occupancy: dict[int, dict[str, int]],
     ) -> dict[int, str]:
+        """Run time-expanded Dijkstra for one drone.
 
+        Explores ``(node_name, turn)`` states using a min-heap.  Capacity
+        checks are performed at every step so that already-routed drones'
+        occupancy is respected.
+
+        Args:
+            graph (Graph): The routing graph.
+            occupancy (dict[int, dict[str, int]]): Node occupancy per turn
+                from previously routed drones.
+            link_occupancy (dict[int, dict[str, int]]): Link occupancy per
+                turn from previously routed drones.
+
+        Returns:
+            dict[int, str]: Turn-to-position mapping.  Returns ``{}`` if
+            no path exists within :data:`MAX_SIMULATION_TURNS`.
+        """
+        # distances[(node_name, turn)] -> best cumulative cost found so far
         distances: dict[tuple[str, int], float] = {}
+        # previous[(node_name, turn)] -> predecessor (node_name, turn) state
         previous: dict[tuple[str, int], tuple[str, int]] = {}
 
         start_node = graph.nodes["start"]
+        # Support both 'goal' and 'impossible_goal' map conventions
         end_name = "goal" if "goal" in graph.nodes else "impossible_goal"
 
+        # Heap entries are (cumulative_cost, turn, node_name)
         queue: list[tuple[float, int, str]] = [(0.0, 0, start_node.name)]
         distances[(start_node.name, 0)] = 0.0
+        # Tracks nodes that have already been expanded to avoid re-expanding
         traversed_node = []
 
         while queue:
             distance, turn, current_node_name = heapq.heappop(queue)
 
-            # Skip if already processed with better distance
             if (current_node_name, turn) in distances:
                 if distance > distances[(current_node_name, turn)]:
                     continue
@@ -64,7 +99,7 @@ class Dijkstra:
 
                 arrival_t = turn + (
                     2 if neighbor_node.zone == "restricted" else 1
-                )
+                )  # Restricted zones cost an extra turn to traverse
 
                 if not self.__check_link_capacity(
                     current_node,
@@ -127,6 +162,19 @@ class Dijkstra:
         occupancy: dict[int, dict[str, int]],
         graph: Graph,
     ) -> bool:
+        """Check whether ``node`` can accept one more drone at ``time``.
+
+        Start and end nodes are exempt from capacity limits.
+
+        Args:
+            node (Node): The hub to check.
+            time (int): The turn at which the drone would occupy the node.
+            occupancy (dict[int, dict[str, int]]): Current occupancy map.
+            graph (Graph): Not used directly; kept for API symmetry.
+
+        Returns:
+            bool: True if the node has capacity, False otherwise.
+        """
         if isinstance(node, StartNode) or isinstance(node, EndNode):
             return True
 
@@ -143,6 +191,24 @@ class Dijkstra:
         link_occupancy: dict[int, dict[str, int]],
         graph: Graph,
     ) -> bool:
+        """Check whether the link between two nodes can be traversed.
+
+        Counts combined occupancy for both directions of the link (since
+        links are bidirectional) across every turn in the transit window.
+
+        Args:
+            from_node (Node): Departure hub.
+            to_node (Node): Destination hub.
+            start_time (int): Turn when the drone leaves ``from_node``.
+            arrival_time (int): Turn when the drone arrives at ``to_node``.
+            link_occupancy (dict[int, dict[str, int]]): Current link
+                occupancy map.
+            graph (Graph): Used to look up the link object and its capacity.
+
+        Returns:
+            bool: True if the link has capacity for this transit window.
+        """
+        # Look up link by canonical name, then by reversed name (bidirectional)
         link_name = f"{from_node.name}-{to_node.name}"
         reverse_link = f"{to_node.name}-{from_node.name}"
 
@@ -166,6 +232,21 @@ class Dijkstra:
         end_state: tuple[str, int],
         previous: dict[tuple[str, int], tuple[str, int]],
     ) -> dict[int, str]:
+        """Reconstruct the full turn-to-position path by back-tracking.
+
+        Handles both single-turn moves and two-turn restricted-zone
+        transitions by inserting an intermediate ``'hub1-hub2'`` entry.
+
+        Args:
+            start_name (str): Name of the start node (backtracking stops
+                here).
+            end_state (tuple[str, int]): ``(node_name, turn)`` of the goal
+                state.
+            previous (dict): Predecessor map built during the search.
+
+        Returns:
+            dict[int, str]: Complete path from turn 0 to the goal.
+        """
 
         path: dict[int, str] = {}
 

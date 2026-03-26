@@ -8,6 +8,10 @@ from PySide6.QtGui import (
 
 
 class Button(QPushButton):
+    """
+    A styled QPushButton with a fixed size, custom color, and hover effect.
+    """
+
     def __init__(
         self,
         name: str,
@@ -17,6 +21,17 @@ class Button(QPushButton):
         hover_color: str,
         font_family: str,
     ) -> None:
+        """
+        Initializes the Button with label, dimensions, colors, and font.
+
+        Args:
+            name (str): The button label text.
+            width_x (int): Fixed button width in pixels.
+            height_y (int): Fixed button height in pixels.
+            color (str): Border and text color (hex string).
+            hover_color (str): Text color on hover.
+            font_family (str): Font family to use for the label.
+        """
         super().__init__(name)
 
         self.name: str = name

@@ -11,7 +11,22 @@ from src.view.ViewQT import ViewQT
 
 
 class ViewApp:
+    """
+    Application entry point that initializes the Qt application and main
+    window.
+
+    Loads fonts, applies the global stylesheet, and creates the ViewQT window.
+    """
+
     def __init__(self, controller: 'Controller') -> None:
+        """
+        Initializes the Qt application, loads fonts, and launches the main
+        window.
+
+        Args:
+            controller (Controller): The application controller for signal
+            wiring.
+        """
         self.app = QtWidgets.QApplication([])
 
         self.controller = controller

@@ -32,7 +32,14 @@ OFFSET: int = NODE_SIZE // 2
 
 
 class SimPage(Page):
+    """
+    The simulation view page displaying the graph, drone animations, and logs.
+
+    Manages the graphical scene, drone objects, and simulation replay.
+    """
+
     def __init__(self) -> None:
+        """Initializes the SimPage with default state."""
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
         self.font_family = self._load_fonts()
@@ -44,6 +51,12 @@ class SimPage(Page):
         self.animations: list = []
 
     def _load_graph(self, graph: Graph) -> None:
+        """
+        Stores the graph and redraws it on the scene if already set up.
+
+        Args:
+            graph (Graph): The graph to display.
+        """
         self.graph = graph
         if self.title_label is not None:
             self.title_label.setText(self.graph.name)
@@ -51,12 +64,31 @@ class SimPage(Page):
             self.draw_graph(self.graph)
 
     def _load_sim(self, allpaths: dict[int, dict[int, str]]) -> None:
+        """
+        Stores the simulation paths for replay.
+
+        Args:
+            allpaths (dict[int, dict[int, str]]): Per-drone turn-to-node
+            mapping.
+        """
         self.allpaths = allpaths
 
     def _load_metrics(self, metrics: dict[str, str]) -> None:
+        """
+        Stores the metrics to display after simulation.
+
+        Args:
+            metrics (dict[str, str]): Key-value pairs of simulation statistics.
+        """
         self.metrics = metrics
 
     def _read_sim(self) -> None:
+        """
+        Replays the simulation by animating drones turn-by-turn using QTimer.
+
+        Reads stored paths and schedules animations and log updates for each
+        turn.
+        """
         if not self.allpaths:
             return
         self.log_remove()
@@ -107,10 +139,28 @@ class SimPage(Page):
     def __log_and_animate(
         self, turn_move: dict[int, tuple[int, int]], i: int, string: str
     ) -> None:
+        """
+        Animates drones for a given turn and logs the movement string.
+
+        Args:
+            turn_move (dict[int, tuple[int, int]]): Drone positions for this
+            turn.
+            i (int): The turn index.
+            string (str): The formatted movement string to log.
+        """
         self._animate_drone(turn_move)
         self.log_move(str(i), string)
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
+        """
+        Builds and returns the simulation page widget.
+
+        Args:
+            stack (QStackedWidget): The navigation stack for the back button.
+
+        Returns:
+            QWidget: The fully constructed simulation page widget.
+        """
         widget = QWidget()
         main_layout = QVBoxLayout(widget)
         main_layout.setContentsMargins(10, 10, 10, 10)
@@ -204,8 +254,7 @@ class SimPage(Page):
 
         log_container.setFixedHeight(300)
         log_container.setSizePolicy(
-            QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Fixed
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
         log_container.setContentsMargins(10, 10, 10, 10)
 
@@ -223,6 +272,12 @@ class SimPage(Page):
         return widget
 
     def draw_graph(self, graph: Graph) -> None:
+        """
+        Renders all nodes and links of the graph onto the QGraphicsScene.
+
+        Args:
+            graph (Graph): The graph to render.
+        """
         if self.scene is None:
             return
 
@@ -281,7 +336,13 @@ class SimPage(Page):
         scene.setSceneRect(rect.adjusted(-padding, 0, padding, padding))
 
     def _draw_drone(self, position: tuple[int, int], id: int) -> None:
+        """
+        Creates and places a Drone sprite on the scene at the given position.
 
+        Args:
+            position (tuple[int, int]): The starting (x, y) tile coordinates.
+            id (int): The drone identifier.
+        """
         x, y = position
         self.drone_list[id] = Drone(
             x - OFFSET / 2, y - OFFSET / 2, NODE_SIZE / 2, NODE_SIZE / 2
@@ -290,6 +351,13 @@ class SimPage(Page):
         self.scene.addItem(self.drone_list[id])
 
     def _animate_drone(self, turn_move: dict[int, tuple[int, int]]) -> None:
+        """
+        Animates drones smoothly to their new positions for the current turn.
+
+        Args:
+            turn_move (dict[int, tuple[int, int]]): Maps drone id to target
+            (x, y) position.
+        """
         for drone, drone_move in turn_move.items():
             x, y = drone_move
             animation = QPropertyAnimation(self.drone_list[drone], b"position")
@@ -301,12 +369,22 @@ class SimPage(Page):
             self.animations.append(animation)
 
     def log_move(self, tour: str, texte: str) -> None:
+        """
+        Appends a formatted turn log entry to the log console.
+
+        Args:
+            tour (str): The turn number as a string.
+            texte (str): The movement description to display.
+        """
         self.log_console.append("")
         self.log_console.append(
             f"<b style='color:white;'>[TOUR {tour}]</b> : {texte}"
         )
 
     def log_remove(self) -> None:
+        """
+        Clears the log console and resets it to the initial welcome message.
+        """
         self.log_console.clear()
         for _ in range(7):
             self.log_console.append("\n")
@@ -315,13 +393,16 @@ class SimPage(Page):
         )
 
     def write_metrics(self) -> None:
+        """Displays the stored simulation metrics in the metrics console."""
         self.remove_metrics()
         for title, metrics in self.metrics.items():
             self.metrics_console.append(f"{title}: {metrics}")
 
     def remove_metrics(self) -> None:
+        """Clears the metrics console."""
         self.metrics_console.clear()
 
     def _scroll_log_to_bottom(self) -> None:
+        """Scrolls the log console to the most recent entry."""
         sb = self.log_console.verticalScrollBar()
         sb.setValue(sb.maximum())

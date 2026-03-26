@@ -10,7 +10,19 @@ from PySide6.QtGui import (
 
 
 class Title(QLabel):
+    """
+    A styled QLabel displaying the application title with a glowing animation
+    effect.
+    """
+
     def __init__(self, name: str, font_family: str) -> None:
+        """
+        Initializes the Title label with font, alignment, and glow animation.
+
+        Args:
+            name (str): The title text to display.
+            font_family (str): The font family to apply to the title.
+        """
         super().__init__(name)
         self.title_font = QFont(font_family, 32, QFont.Weight.Bold)
         self.name = name

@@ -4,6 +4,10 @@ from src.graph.node.Node import Node
 
 
 class EndNode(Node):
+    """
+    The destination node in the simulation graph where drones must arrive.
+    """
+
     def __init__(
         self,
         name: str,
@@ -13,13 +17,14 @@ class EndNode(Node):
         max_drone: int = 1
     ) -> None:
         """
-        Initializes graph components for the Node.
+        Initializes the EndNode.
 
         Args:
-            name (str): Nominal label string.
-            type (str): Sub logic category identifier.
-            pos (Tuple[int, int]): Fixed location setup mapping.
-            zone (str): Contextual zone categorization.
-            color (Optional[str], optional): Cosmetic wrapper.
+            name (str): Unique name identifier for the node.
+            pos (Tuple[int, int]): Cartesian (x, y) position on the map.
+            zone (str): Zone category this node belongs to.
+            color (Optional[str], optional): Optional rendering color.
+            max_drone (int, optional): Maximum simultaneous drones. Defaults
+            to 1.
         """
         super().__init__(name, pos, zone, color, max_drone)

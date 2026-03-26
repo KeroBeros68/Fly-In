@@ -41,11 +41,18 @@ class ControllerError(Exception):
 
 class Controller(QObject):
     """
-    Main controller for managing the map parsing and simulation.
+    Main application controller managing map loading and simulation flow.
 
-    Attributes:
-        map_path (str): Path to the map to process.
-        drone_list (list): List of initialized drones.
+    Emits Qt signals to communicate state changes to the view layer.
+
+    Signals:
+        file_error (str): Emitted when a file loading error occurs.
+        file_loaded (bool): Emitted when a file is successfully loaded or
+                                                                        fails.
+        load_graph (object): Emitted with the constructed Graph after loading.
+        load_sim (object): Emitted with simulation paths after simulation runs.
+        load_metrics (object): Emitted with simulation metrics after
+                                                            simulation runs.
     """
 
     file_error = Signal(str)
@@ -63,10 +70,15 @@ class Controller(QObject):
         simulation: Simulation,
     ) -> None:
         """
-        Initializes the Controller.
+        Initializes the Controller with its required dependencies.
 
         Args:
-            map_path (str): The path to the map configuration file.
+            reader (FileLoader): Used to read map files from disk.
+            builder (GraphBuilder): Converts parsed map data into a Graph.
+            parser (MapParser): Parses raw map file content into a MapModel.
+            algorithm (AlgorithmProtocol): Pathfinding algorithm for the
+                                                                simulation.
+            simulation (Simulation): Simulation engine that runs the algorithm.
         """
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
@@ -94,6 +106,15 @@ class Controller(QObject):
         sys.exit(self.app.app.exec())
 
     def load_file(self, path: str) -> None:
+        """
+        Loads, parses, and builds the graph from the given file path.
+
+        Emits file_loaded and load_graph signals on success,
+        or file_error on failure.
+
+        Args:
+            path (str): Path to the map file to load. Empty string is ignored.
+        """
         if path == "":
             self.file_loaded.emit(False)
             return
@@ -131,11 +152,9 @@ class Controller(QObject):
 
     def launch_simulation(self) -> None:
         """
-        Initializes the simulation by instantiating drones.
+        Runs the simulation using the loaded graph and drone count.
 
-        Args:
-            nb_drone (int): The number of drones to initialize.
-            start_pos (Tuple[int, int]): Drone start coordinates (x, y).
+        Emits load_sim with all drone paths and load_metrics with statistics.
         """
         self.logger.info("Launch Simulation Start")
         all_paths, output_lines, metrics = self.simulation_engine.start(

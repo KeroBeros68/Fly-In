@@ -27,17 +27,40 @@ logger = logging.getLogger("Fly-In")
 
 
 class FileDropInput(QLineEdit):
+    """
+    A QLineEdit that accepts file drag-and-drop events and triggers a callback.
+    """
+
     def __init__(self, on_file_selected: Any = None) -> None:
+        """
+        Initializes the file drop input with an optional selection callback.
+
+        Args:
+            on_file_selected (Any, optional): Callable invoked with the
+            selected file path.
+        """
         super().__init__()
         self.setAcceptDrops(True)
         self.on_file_selected = on_file_selected
         self.setPlaceholderText("Drag & drop a file or click Browse")
 
     def dragEnterEvent(self, event: Any) -> None:
+        """
+        Accepts drag enter events that contain file URLs.
+
+        Args:
+            event (Any): The Qt drag enter event.
+        """
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
 
     def dropEvent(self, event: Any) -> None:
+        """
+        Handles file drop: sets the input text and triggers the callback.
+
+        Args:
+            event (Any): The Qt drop event containing file URLs.
+        """
         files = event.mimeData().urls()
         if files:
             file_path = files[0].toLocalFile()
@@ -48,12 +71,31 @@ class FileDropInput(QLineEdit):
 
 
 class MenuPage(Page):
+    """
+    The main menu page of the application.
+
+    Provides file selection, simulation launch, GitHub link, and exit controls.
+
+    Signals:
+        file_selected (str): Emitted with the selected file path.
+    """
+
     file_selected = Signal(str)
 
     def __init__(self) -> None:
+        """Initializes the MenuPage."""
         super().__init__()
 
     def create_page(self, stack: QStackedWidget) -> QWidget:
+        """
+        Builds and returns the menu page widget.
+
+        Args:
+            stack (QStackedWidget): The page stack used for navigation.
+
+        Returns:
+            QWidget: The fully constructed menu page widget.
+        """
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -166,6 +208,14 @@ class MenuPage(Page):
         return widget
 
     def open_file(self, parent: QWidget, file_input: FileDropInput) -> None:
+        """
+        Opens a native file dialog and populates the file input on selection.
+
+        Args:
+            parent (QWidget): The parent widget for the dialog.
+            file_input (FileDropInput): The input field to update with the
+            selected path.
+        """
         file_path, _ = QFileDialog.getOpenFileName(
             parent,
             "Select flight file",

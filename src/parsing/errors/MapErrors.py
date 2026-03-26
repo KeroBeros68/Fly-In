@@ -17,21 +17,33 @@ class MapFileNotFoundError(MapError):
 
 
 class MapEmptyError(MapError):
+    """Raised when the map file is empty or contains only comments."""
+
     def __init__(self) -> None:
         super().__init__("Map file is empty")
 
 
 class MapNbDronesError(MapError):
+    """
+    Raised when the drone count line is missing or contains a non-integer.
+    """
+
     def __init__(self, nb_drones: str) -> None:
         super().__init__(f"Wrong drone number: '{nb_drones}'")
 
 
 class MapHubError(MapError):
+    """
+    Raised when a hub line fails validation (bad format or Pydantic error).
+    """
+
     def __init__(self, hub: str) -> None:
         super().__init__(f"Hub validation error: '{hub}'")
 
 
 class MapPrefixError(MapError):
+    """Raised when a line starts with an unrecognised prefix."""
+
     def __init__(self, prefix: str) -> None:
         super().__init__(f"Invalid prefix: '{prefix}'")
 
@@ -51,6 +63,8 @@ class MapDuplicateHubError(MapError):
 
 
 class MapZoneHubError(MapError):
+    """Raised when a hub specifies an unrecognised zone name."""
+
     def __init__(self, zone: str) -> None:
         super().__init__(f"Invalid hub zone name: '{zone}'")
 
@@ -82,9 +96,7 @@ class MapInvalidConnectionError(MapConnectionError):
     """Raised when a connection references a hub that does not exist."""
 
     def __init__(self, hub_name: str) -> None:
-        super().__init__(
-            f"Connection references unknown hub: '{hub_name}'"
-        )
+        super().__init__(f"Connection references unknown hub: '{hub_name}'")
 
 
 class MapConnectionValidationError(MapConnectionError):
