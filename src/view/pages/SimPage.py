@@ -48,7 +48,7 @@ class SimPage(Page):
         self.metrics: dict[str, str] = {}
         self.title_label: QLabel | None = None
         self.drone_list: dict[int, Drone] = {}
-        self.animations: list = []
+        self.animations: list[QPropertyAnimation] = []
 
     def _load_graph(self, graph: Graph) -> None:
         """

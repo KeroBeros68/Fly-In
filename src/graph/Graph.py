@@ -72,7 +72,7 @@ class Graph:
         Raises:
             GraphNodeError: If the node already exists in the graph.
         """
-        if node in self.__nodes:
+        if node.name in self.__nodes:
             raise GraphNodeError("Node already in Graph")
         if isinstance(node, StartNode):
             node.weight = 0

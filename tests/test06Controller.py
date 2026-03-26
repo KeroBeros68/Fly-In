@@ -129,7 +129,7 @@ class TestController:
             {},
         )
 
-        sim_results: list = []
+        sim_results: list[dict[int, dict[int, str]]] = []
         self.ctrl.load_sim.connect(lambda v: sim_results.append(v))
 
         self.ctrl.launch_simulation()

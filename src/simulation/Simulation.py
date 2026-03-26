@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from src.graph.Graph import Graph
 from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
@@ -104,7 +105,9 @@ class Simulation:
             self.logger.warning(f"Format output error: {str(e)}")
             return []
 
-    def _compute_metrics(self, all_paths: dict[int, dict[int, str]]) -> dict:
+    def _compute_metrics(
+        self, all_paths: dict[int, dict[int, str]]
+    ) -> dict[str, Any]:
         """
         Computes summary statistics from the completed simulation paths.
 
