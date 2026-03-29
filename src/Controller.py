@@ -86,6 +86,7 @@ class Controller(QObject):
         """
         super().__init__()
         self.logger = logging.getLogger("Fly-In")
+        self.arg_parser: PausingArgumentParser = arg_parser
         self.reader: FileLoader = reader
         self.builder: GraphBuilder = builder
         self.parser: MapParser = parser
@@ -102,11 +103,7 @@ class Controller(QObject):
         the simulation. Validates the secure environment if provided.
         """
         self.logger.info("Programm starting")
-        try:
-            self.app = ViewApp(self)
-        except Exception as e:
-            raise e
-
+        self.app = ViewApp(self)
         sys.exit(self.app.app.exec())
 
     def load_file(self, path: str) -> None:
@@ -125,6 +122,7 @@ class Controller(QObject):
         self.map_name: str = path.split("/")[::-1][0].split(".")[0]
         self.logger.info(f"File received: {path}")
 
+        map_model = None
         try:
             content = self.reader.read_file(path)
 

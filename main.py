@@ -14,7 +14,12 @@ from src.utils.RunSecurity.RunSecurity import RunEnvironmentError, RunSecurity
 from src.utils.logger import setup_logger
 
 PROG_NAME: str = "Fly-In"
-PROG_DESCRIPTION: str = "What the program does"  # a faire
+PROG_DESCRIPTION: str = (
+    "Drone routing simulation system: routes a fleet of drones from a start "
+    "hub to an end hub through a network of connected zones, minimising the "
+    "total number of simulation turns while respecting all capacity and "
+    "movement constraints."
+)
 PROG_HELP: str = "Text at the bottom of help"
 
 TERMINAL: list[str] = ["gnome-terminal", "--"]

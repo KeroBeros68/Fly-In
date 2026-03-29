@@ -42,6 +42,20 @@ class INode(ABC):
         """
         ...
 
+    @property
+    @abstractmethod
+    def is_terminal(self) -> bool:
+        """
+        Whether this node is a terminal (start or end) node.
+
+        Terminal nodes are exempt from capacity constraints so that
+        all drones can depart from start and accumulate at end freely.
+
+        Returns:
+            bool: True if this node is a start or end node.
+        """
+        ...
+
 
 class IPathfindingNode(INode):
     """Noeud capable de participer à un algorithme de pathfinding."""
@@ -171,6 +185,19 @@ class Node(IDroneNode, IPathfindingNode):
         self.__max_drones: int = max_drone
         self.__color: Optional[str] = color
         self.__zone: str = zone
+
+    @property
+    def is_terminal(self) -> bool:
+        """
+        Returns False for all regular nodes.
+
+        Overridden to True in StartNode and EndNode, which are exempt
+        from drone capacity limits.
+
+        Returns:
+            bool: Always False for intermediate hub nodes.
+        """
+        return False
 
     @property
     def name(self) -> str:

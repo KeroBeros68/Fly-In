@@ -4,8 +4,7 @@ import math
 
 from src.graph.Graph import Graph
 from src.graph.node.Node import IPathfindingNode
-from src.graph.node.EndNode import EndNode
-from src.graph.node.StartNode import StartNode
+from src.parsing.utils.Enum import ZoneEnum
 
 
 WAITING_DISCOUNT: float = (
@@ -94,11 +93,11 @@ class Dijkstra:
                     or neighbor_node.name in traversed_node
                 ):
                     continue
-                if neighbor_node.zone == "blocked":
+                if neighbor_node.zone == ZoneEnum.BLOCKED.value:
                     continue
 
                 arrival_t = turn + (
-                    2 if neighbor_node.zone == "restricted" else 1
+                    2 if neighbor_node.zone == ZoneEnum.RESTRICTED.value else 1
                 )  # Restricted zones cost an extra turn to traverse
 
                 # A drone cannot wait on a link mid-transit: only enter if
@@ -119,9 +118,9 @@ class Dijkstra:
                 ):
                     continue
 
-                if neighbor_node.zone == "priority":
+                if neighbor_node.zone == ZoneEnum.PRIORITY.value:
                     move_cost = PRIORITY_ZONE_DISCOUNT
-                elif neighbor_node.zone == "restricted":
+                elif neighbor_node.zone == ZoneEnum.RESTRICTED.value:
                     move_cost = RESTRICTED_ZONE_COST
                 else:
                     move_cost = 1.0
@@ -173,12 +172,12 @@ class Dijkstra:
             node (IPathfindingNode): The hub to check.
             time (int): The turn at which the drone would occupy the node.
             occupancy (dict[int, dict[str, int]]): Current occupancy map.
-            graph (Graph): Not used directly; kept for API symmetry.
+            graph (Graph): Reserved for future capacity lookup extensions.
 
         Returns:
             bool: True if the node has capacity, False otherwise.
         """
-        if isinstance(node, StartNode) or isinstance(node, EndNode):
+        if node.is_terminal:
             return True
 
         maximum_capacity = getattr(node, "max_drones", 1)

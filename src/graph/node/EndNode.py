@@ -28,3 +28,16 @@ class EndNode(Node):
             to 1.
         """
         super().__init__(name, pos, zone, color, max_drone)
+
+    @property
+    def is_terminal(self) -> bool:
+        """
+        Returns True because the end node is exempt from capacity limits.
+
+        Multiple drones can arrive and accumulate at the end node
+        regardless of its max_drones setting.
+
+        Returns:
+            bool: Always True.
+        """
+        return True

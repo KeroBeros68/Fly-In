@@ -26,3 +26,16 @@ class StartNode(Node):
             to 1.
         """
         super().__init__(name, pos, zone, color, max_drone)
+
+    @property
+    def is_terminal(self) -> bool:
+        """
+        Returns True because the start node is exempt from capacity limits.
+
+        All drones begin at the start node simultaneously regardless of
+        its max_drones setting.
+
+        Returns:
+            bool: Always True.
+        """
+        return True

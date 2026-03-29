@@ -76,7 +76,7 @@ Fly-In/
 │   ├── graph/
 │   │   ├── Graph.py                 # Graph (nodes + links)
 │   │   ├── node/
-│   │   │   ├── Node.py              # INode / IPathfindingNode / IDroneNode interfaces + base Node
+│   │   │   ├── Node.py              # INode (is_terminal) / IPathfindingNode / IDroneNode interfaces + base Node
 │   │   │   ├── StartNode.py         # Origin hub
 │   │   │   ├── EndNode.py           # Destination hub
 │   │   │   └── HubNode.py           # Intermediate hub
