@@ -18,13 +18,19 @@ def qt_app() -> Generator[Any, Any, Any]:
 
 
 def make_controller() -> Any:
+    mock_arg_parser = MagicMock()
     mock_reader = MagicMock()
     mock_builder = MagicMock()
     mock_parser = MagicMock()
     mock_algorithm = MagicMock()
     mock_simulation = MagicMock()
     return Controller(
-        mock_reader, mock_builder, mock_parser, mock_algorithm, mock_simulation
+        mock_arg_parser,
+        mock_reader,
+        mock_builder,
+        mock_parser,
+        mock_algorithm,
+        mock_simulation,
     )
 
 
@@ -78,9 +84,7 @@ class TestController:
 
         self.ctrl.load_file("test.txt")
 
-        self.reader.read_file.assert_called_once_with(
-            "test.txt"
-        )
+        self.reader.read_file.assert_called_once_with("test.txt")
         self.parser.process.assert_called_once()
         self.builder.build.assert_called_once()
         self.engine.start.assert_called_once()

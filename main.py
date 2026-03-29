@@ -9,11 +9,16 @@ from src.GraphBuilder import GraphBuilder
 from src.parsing.MapParser import MapParser
 from src.simulation.PathfindingAlgorithm import PathfindingAlgorithm
 from src.simulation.Simulation import Simulation
-from src.utils.check_env.RunSecurity import RunEnvironmentError, RunSecurity
+from src.utils.PausingArgumentParser import PausingArgumentParser
+from src.utils.RunSecurity.RunSecurity import RunEnvironmentError, RunSecurity
 from src.utils.logger import setup_logger
 
-# TERMINAL: list[str] = ["gnome-terminal", "--"]
-TERMINAL: list[str] = ["konsole", "-e"]
+PROG_NAME: str = "Fly-In"
+PROG_DESCRIPTION: str = "What the program does"  # a faire
+PROG_HELP: str = "Text at the bottom of help"
+
+TERMINAL: list[str] = ["gnome-terminal", "--"]
+# TERMINAL: list[str] = ["konsole", "-e"]
 ALGORITHM: str = "dijkstra"
 
 
@@ -24,7 +29,7 @@ def main() -> None:
     Initializes the controller with the map path from the command
     line arguments and starts the processing loop.
     """
-    logger = logging.getLogger("Fly-In")
+    logger = logging.getLogger(PROG_NAME)
 
     if "--gui" not in sys.argv:
         secure_env = RunSecurity()
@@ -57,6 +62,7 @@ def main() -> None:
         from src.Controller import Controller, ControllerError
 
         controller = Controller(
+            PausingArgumentParser(PROG_NAME, PROG_DESCRIPTION, PROG_HELP),
             FileLoader(),
             GraphBuilder(),
             MapParser(),
@@ -81,5 +87,5 @@ if __name__ == "__main__":
             start_new_session=True,
         )
         os._exit(0)
-    setup_logger("Fly-In")
+    setup_logger(PROG_NAME)
     main()

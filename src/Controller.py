@@ -7,6 +7,7 @@ from src.graph.Graph import Graph
 from src.parsing.MapParser import MapParser
 from src.simulation.Simulation import Simulation
 from src.simulation.algorithms.AlgorithmProtocol import AlgorithmProtocol
+from src.utils.PausingArgumentParser import PausingArgumentParser
 from src.view.ViewApp import ViewApp
 
 from PySide6.QtCore import QObject, Signal
@@ -63,6 +64,7 @@ class Controller(QObject):
 
     def __init__(
         self,
+        arg_parser: PausingArgumentParser,
         reader: FileLoader,
         builder: GraphBuilder,
         parser: MapParser,
