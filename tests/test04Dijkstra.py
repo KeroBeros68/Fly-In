@@ -179,7 +179,14 @@ class TestDijkstra:
 
         waiting_res = {
             1: {0: "start", 1: "hub1", 2: "hub1-hub2", 3: "hub2", 4: "goal"},
-            2: {0: "start", 2: "hub1", 3: "hub1-hub2", 4: "hub2", 5: "goal"},
+            2: {
+                0: "start",
+                1: "start",
+                2: "hub1",
+                3: "hub1-hub2",
+                4: "hub2",
+                5: "goal",
+            },
         }
 
         assert all_paths == waiting_res
@@ -222,8 +229,8 @@ class TestDijkstra:
             1: {0: "start", 1: "hub1", 2: "hub3", 3: "goal"},
             2: {0: "start", 1: "hub1", 2: "hub3", 3: "goal"},
             3: {0: "start", 1: "hub1", 2: "hub3", 3: "goal"},
-            4: {0: "start", 2: "hub1", 3: "hub3", 4: "goal"},
-            5: {0: "start", 2: "hub1", 3: "hub3", 4: "goal"},
+            4: {0: "start", 1: "start", 2: "hub1", 3: "hub3", 4: "goal"},
+            5: {0: "start", 1: "start", 2: "hub1", 3: "hub3", 4: "goal"},
         }
 
         assert all_paths == waiting_res

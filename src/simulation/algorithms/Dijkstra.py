@@ -264,5 +264,8 @@ class Dijkstra:
                     path[curr_turn] = curr_name
             curr_name, curr_turn = prev_name, prev_turn
 
+        while curr_turn > 0:
+            path[curr_turn] = curr_name
+            curr_turn -= 1
         path[0] = start_name
         return path

@@ -74,20 +74,88 @@ class TestSimulation:
     graph: Graph = build_graph(create_simple_map_model())
     allpaths: dict[int, dict[int, str]] = {
         1: {0: "start", 1: "hub1", 2: "hub1-hub2", 3: "hub2", 4: "goal"},
-        2: {0: "start", 2: "hub1", 3: "hub1-hub2", 4: "hub2", 5: "goal"},
-        3: {0: "start", 3: "hub1", 4: "hub1-hub2", 5: "hub2", 6: "goal"},
-        4: {0: "start", 4: "hub1", 5: "hub1-hub2", 6: "hub2", 7: "goal"},
-        5: {0: "start", 5: "hub1", 6: "hub1-hub2", 7: "hub2", 8: "goal"},
+        2: {
+            0: "start",
+            1: "start",
+            2: "hub1",
+            3: "hub1-hub2",
+            4: "hub2",
+            5: "goal",
+        },
+        3: {
+            0: "start",
+            1: "start",
+            2: "start",
+            3: "hub1",
+            4: "hub1-hub2",
+            5: "hub2",
+            6: "goal",
+        },
+        4: {
+            0: "start",
+            1: "start",
+            2: "start",
+            3: "start",
+            4: "hub1",
+            5: "hub1-hub2",
+            6: "hub2",
+            7: "goal",
+        },
+        5: {
+            0: "start",
+            1: "start",
+            2: "start",
+            3: "start",
+            4: "start",
+            5: "hub1",
+            6: "hub1-hub2",
+            7: "hub2",
+            8: "goal",
+        },
     }
 
     def test_launch_simulation(self) -> None:
         allpaths, _, _ = self.simulation.start(Dijkstra(), self.graph, 5)
         assert allpaths == {
             1: {0: "start", 1: "hub1", 2: "hub1-hub2", 3: "hub2", 4: "goal"},
-            2: {0: "start", 2: "hub1", 3: "hub1-hub2", 4: "hub2", 5: "goal"},
-            3: {0: "start", 3: "hub1", 4: "hub1-hub2", 5: "hub2", 6: "goal"},
-            4: {0: "start", 4: "hub1", 5: "hub1-hub2", 6: "hub2", 7: "goal"},
-            5: {0: "start", 5: "hub1", 6: "hub1-hub2", 7: "hub2", 8: "goal"},
+            2: {
+                0: "start",
+                1: "start",
+                2: "hub1",
+                3: "hub1-hub2",
+                4: "hub2",
+                5: "goal",
+            },
+            3: {
+                0: "start",
+                1: "start",
+                2: "start",
+                3: "hub1",
+                4: "hub1-hub2",
+                5: "hub2",
+                6: "goal",
+            },
+            4: {
+                0: "start",
+                1: "start",
+                2: "start",
+                3: "start",
+                4: "hub1",
+                5: "hub1-hub2",
+                6: "hub2",
+                7: "goal",
+            },
+            5: {
+                0: "start",
+                1: "start",
+                2: "start",
+                3: "start",
+                4: "start",
+                5: "hub1",
+                6: "hub1-hub2",
+                7: "hub2",
+                8: "goal",
+            },
         }
 
     def test_format_output_correct(self) -> None:
@@ -104,7 +172,7 @@ class TestSimulation:
         assert res == {
             "total_turns": 8,
             "total_drones": 5,
-            "avg_turns_per_drone": 5,
+            "avg_turns_per_drone": 7,
             "throughput": 5 / 8,
             "total_movements": 25,
         }
