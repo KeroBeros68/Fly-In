@@ -3,7 +3,61 @@ import math
 from typing import Optional
 
 
-class Node:
+from abc import ABC, abstractmethod
+
+
+class INode(ABC):
+    """Identité de base d'un noeud."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def pos(self) -> tuple[int, int]: ...
+
+    @property
+    @abstractmethod
+    def zone(self) -> str: ...
+
+
+class IPathfindingNode(INode):
+    """Noeud capable de participer à un algorithme de pathfinding."""
+
+    @property
+    @abstractmethod
+    def weight(self) -> float: ...
+
+    @weight.setter
+    @abstractmethod
+    def weight(self, value: float) -> None: ...
+
+    @property
+    @abstractmethod
+    def previous_node(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def connected_nodes(self) -> list["IPathfindingNode"]: ...
+
+    @abstractmethod
+    def add_connected_node(self, node: "IPathfindingNode") -> None: ...
+
+
+class IDroneNode(INode):
+    """Noeud avec capacité de gestion de drones."""
+
+    @property
+    @abstractmethod
+    def max_drones(self) -> int: ...
+
+    @max_drones.setter
+    @abstractmethod
+    def max_drones(self, value: int) -> None: ...
+
+
+class Node(IDroneNode, IPathfindingNode):
     """
     Representation of a graph node with position, zone, and capacity.
 
@@ -41,7 +95,7 @@ class Node:
         self.__pos: tuple[int, int] = pos
 
         self.__weight: float = math.inf
-        self.__connected_node: list[Node] = [self]
+        self.__connected_node: list[IPathfindingNode] = [self]
         self.__previous_node: str = ""
 
         self.__max_drones: int = max_drone
@@ -129,7 +183,7 @@ class Node:
         self.__max_drones = max_drones
 
     @property
-    def connected_nodes(self) -> list["Node"]:
+    def connected_nodes(self) -> list["IPathfindingNode"]:
         """
         Retrieves the list of connected nodes.
 
@@ -158,7 +212,7 @@ class Node:
         """
         self.__previous_node = node.name
 
-    def add_connected_node(self, new_node: "Node") -> None:
+    def add_connected_node(self, new_node: "IPathfindingNode") -> None:
         """
         Appends a uniquely newly connected node into the adjacency list.
 

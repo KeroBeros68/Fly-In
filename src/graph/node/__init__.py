@@ -1,3 +1,3 @@
-from .Node import Node, NodeConnectedNodeError
+from .Node import Node, NodeConnectedNodeError, IPathfindingNode
 
-__all__ = ["Node", "NodeConnectedNodeError"]
+__all__ = ["Node", "NodeConnectedNodeError", "IPathfindingNode"]

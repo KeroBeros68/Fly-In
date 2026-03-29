@@ -3,7 +3,7 @@ import logging
 import math
 
 from src.graph.Graph import Graph
-from src.graph.node import Node
+from src.graph.node.Node import IPathfindingNode
 from src.graph.node.EndNode import EndNode
 from src.graph.node.StartNode import StartNode
 
@@ -130,9 +130,7 @@ class Dijkstra:
                 if new_distance < distances.get(
                     (neighbor_node.name, arrival_t), math.inf
                 ):
-                    distances[(neighbor_node.name, arrival_t)] = (
-                        new_distance
-                    )
+                    distances[(neighbor_node.name, arrival_t)] = new_distance
                     previous[(neighbor_node.name, arrival_t)] = (
                         current_node.name,
                         turn,
@@ -162,7 +160,7 @@ class Dijkstra:
 
     def __check_capacity(
         self,
-        node: Node,
+        node: IPathfindingNode,
         time: int,
         occupancy: dict[int, dict[str, int]],
         graph: Graph,
@@ -189,8 +187,8 @@ class Dijkstra:
 
     def __check_link_capacity(
         self,
-        from_node: Node,
-        to_node: Node,
+        from_node: IPathfindingNode,
+        to_node: IPathfindingNode,
         start_time: int,
         arrival_time: int,
         link_occupancy: dict[int, dict[str, int]],
