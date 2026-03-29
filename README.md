@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![PySide6](https://img.shields.io/badge/UI-PySide6-41CD52?style=flat-square&logo=qt&logoColor=white)
-![Version](https://img.shields.io/badge/version-0.34.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.36.0-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
 > Design and simulate an efficient multi-drone routing system navigating a network of connected zones under strict movement, capacity, and zone-type constraints.
@@ -76,7 +76,7 @@ Fly-In/
 │   ├── graph/
 │   │   ├── Graph.py                 # Graph (nodes + links)
 │   │   ├── node/
-│   │   │   ├── Node.py              # Base node (weight, zone, capacity)
+│   │   │   ├── Node.py              # INode / IPathfindingNode / IDroneNode interfaces + base Node
 │   │   │   ├── StartNode.py         # Origin hub
 │   │   │   ├── EndNode.py           # Destination hub
 │   │   │   └── HubNode.py           # Intermediate hub
@@ -94,7 +94,9 @@ Fly-In/
 │   │       ├── AlgorithmProtocol.py # Protocol interface
 │   │       └── Dijkstra.py          # Time-expanded Dijkstra implementation
 │   ├── utils/
-│   │   └── check_env/
+│   │   ├── PausingArgumentParser/
+│   │   │   └── PausingArgumentParser.py  # argparse wrapper (no sys.exit on error)
+│   │   └── RunSecurity/
 │   │       └── RunSecurity.py       # Venv & dependency verification
 │   └── view/
 │       ├── ViewApp.py               # Qt application bootstrap

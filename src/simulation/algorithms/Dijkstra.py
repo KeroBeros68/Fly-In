@@ -170,7 +170,7 @@ class Dijkstra:
         Start and end nodes are exempt from capacity limits.
 
         Args:
-            node (Node): The hub to check.
+            node (IPathfindingNode): The hub to check.
             time (int): The turn at which the drone would occupy the node.
             occupancy (dict[int, dict[str, int]]): Current occupancy map.
             graph (Graph): Not used directly; kept for API symmetry.
@@ -200,8 +200,8 @@ class Dijkstra:
         links are bidirectional) across every turn in the transit window.
 
         Args:
-            from_node (Node): Departure hub.
-            to_node (Node): Destination hub.
+            from_node (IPathfindingNode): Departure hub.
+            to_node (IPathfindingNode): Destination hub.
             start_time (int): Turn when the drone leaves ``from_node``.
             arrival_time (int): Turn when the drone arrives at ``to_node``.
             link_occupancy (dict[int, dict[str, int]]): Current link

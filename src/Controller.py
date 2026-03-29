@@ -75,6 +75,8 @@ class Controller(QObject):
         Initializes the Controller with its required dependencies.
 
         Args:
+            arg_parser (PausingArgumentParser): Argument parser used to
+                handle CLI arguments without exiting on error.
             reader (FileLoader): Used to read map files from disk.
             builder (GraphBuilder): Converts parsed map data into a Graph.
             parser (MapParser): Parses raw map file content into a MapModel.

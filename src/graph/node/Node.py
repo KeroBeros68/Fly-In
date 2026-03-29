@@ -11,15 +11,36 @@ class INode(ABC):
 
     @property
     @abstractmethod
-    def name(self) -> str: ...
+    def name(self) -> str:
+        """
+        Gets the unique name identifier of the node.
+
+        Returns:
+            str: The node's name.
+        """
+        ...
 
     @property
     @abstractmethod
-    def pos(self) -> tuple[int, int]: ...
+    def pos(self) -> tuple[int, int]:
+        """
+        Gets the (x, y) position of the node on the map.
+
+        Returns:
+            tuple[int, int]: Cartesian position of the node.
+        """
+        ...
 
     @property
     @abstractmethod
-    def zone(self) -> str: ...
+    def zone(self) -> str:
+        """
+        Gets the zone category this node belongs to.
+
+        Returns:
+            str: The zone name (e.g., 'normal', 'priority', 'restricted').
+        """
+        ...
 
 
 class IPathfindingNode(INode):
@@ -27,22 +48,57 @@ class IPathfindingNode(INode):
 
     @property
     @abstractmethod
-    def weight(self) -> float: ...
+    def weight(self) -> float:
+        """
+        Gets the pathfinding weight of the node.
+
+        Returns:
+            float: The current weight (infinity by default).
+        """
+        ...
 
     @weight.setter
     @abstractmethod
-    def weight(self, value: float) -> None: ...
+    def weight(self, value: float) -> None:
+        """
+        Sets the pathfinding weight of the node.
+
+        Args:
+            value (float): The new weight value to assign.
+        """
+        ...
 
     @property
     @abstractmethod
-    def previous_node(self) -> str: ...
+    def previous_node(self) -> str:
+        """
+        Gets the name of the previous node in the pathfinding traversal.
+
+        Returns:
+            str: The name of the predecessor node, or empty string if none.
+        """
+        ...
 
     @property
     @abstractmethod
-    def connected_nodes(self) -> list["IPathfindingNode"]: ...
+    def connected_nodes(self) -> list["IPathfindingNode"]:
+        """
+        Gets the list of directly connected neighbour nodes.
+
+        Returns:
+            list[IPathfindingNode]: Connected node instances.
+        """
+        ...
 
     @abstractmethod
-    def add_connected_node(self, node: "IPathfindingNode") -> None: ...
+    def add_connected_node(self, node: "IPathfindingNode") -> None:
+        """
+        Adds a node to the adjacency list.
+
+        Args:
+            node (IPathfindingNode): The neighbour node to connect.
+        """
+        ...
 
 
 class IDroneNode(INode):
@@ -50,11 +106,25 @@ class IDroneNode(INode):
 
     @property
     @abstractmethod
-    def max_drones(self) -> int: ...
+    def max_drones(self) -> int:
+        """
+        Gets the maximum number of drones allowed on this node simultaneously.
+
+        Returns:
+            int: The drone capacity of the node.
+        """
+        ...
 
     @max_drones.setter
     @abstractmethod
-    def max_drones(self, value: int) -> None: ...
+    def max_drones(self, value: int) -> None:
+        """
+        Sets the maximum number of drones allowed on this node.
+
+        Args:
+            value (int): The new drone capacity.
+        """
+        ...
 
 
 class Node(IDroneNode, IPathfindingNode):
@@ -188,7 +258,7 @@ class Node(IDroneNode, IPathfindingNode):
         Retrieves the list of connected nodes.
 
         Returns:
-            List[Node]: Connected node instances.
+            list[IPathfindingNode]: Connected node instances.
         """
         return self.__connected_node
 
@@ -217,7 +287,7 @@ class Node(IDroneNode, IPathfindingNode):
         Appends a uniquely newly connected node into the adjacency list.
 
         Args:
-            new_node (Node): Node reference to connect.
+            new_node (IPathfindingNode): Node reference to connect.
 
         Raises:
             NodeConnectedNodeError: Occurs if the target already exists.
