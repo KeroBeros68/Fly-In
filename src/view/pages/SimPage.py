@@ -153,6 +153,7 @@ class SimPage(Page):
         self._animate_drone(turn_move)
         self.log_move(str(i), string)
         self._update_node_labels(i)
+        self._update_link_labels(i)
 
     def _update_node_labels(self, turn: int) -> None:
         """Updates each node's occupancy label for the given turn."""
@@ -170,6 +171,28 @@ class SimPage(Page):
             text_item.setPlainText(f"{node_name}: {current}/{max_drones}")
             color = (
                 "red" if current >= max_drones and max_drones > 0 else "white"
+            )
+            text_item.setDefaultTextColor(QColor(color))
+
+    def _update_link_labels(self, turn: int) -> None:
+        """Updates each link's occupancy label for the given turn."""
+        link_occ: dict[str, int] = {}
+        for path in self.allpaths.values():
+            past_keys = [key for key in path if key <= turn]
+            if not past_keys:
+                continue
+            pos = path[max(past_keys)]
+            if pos and "-" in pos:
+                link_occ[pos] = link_occ.get(pos, 0) + 1
+
+        for link_name, (text_item, connection_max) in self.link_labels.items():
+            current = link_occ.get(link_name, 0)
+            max_cap = connection_max or 1
+            text_item.setPlainText(f"{current}/{max_cap}")
+            color = (
+                "red"
+                if current >= max_cap
+                else "white"
             )
             text_item.setDefaultTextColor(QColor(color))
 
@@ -307,6 +330,7 @@ class SimPage(Page):
         scene.clear()
 
         self.node_labels = {}
+        self.link_labels = {}
         self.drone_list = {}
         self.animations = []
 
@@ -330,6 +354,11 @@ class SimPage(Page):
                     y2 * SCALE,
                     pen_line,
                 )
+            mid_x = (x1 + x2) / 2 * SCALE
+            mid_y = (y1 + y2) / 2 * SCALE
+            label = scene.addText(f"0/{link.max_drone}")
+            label.setPos(mid_x, mid_y)
+            self.link_labels[link.name] = (label, link.max_drone)
 
         def __draw_hub(node: Node) -> None:
             orig_x, orig_y = node.pos
